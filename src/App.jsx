@@ -2,12 +2,15 @@ import { useState } from 'react'
 import BookSelect from './components/BookSelect.jsx'
 import Quiz from './components/Quiz.jsx'
 import Results from './components/Results.jsx'
+import HistoryScreen from './components/HistoryScreen.jsx'
 import { pickQuestions } from './data/questions.js'
+import { saveAttempt } from './history/historyStore.js'
 
 const SCREENS = {
   HOME: 'accueil',
   QUIZ: 'quiz',
   RESULTS: 'resultats',
+  HISTORY: 'historique',
 }
 
 export default function App() {
@@ -25,12 +28,24 @@ export default function App() {
 
   function finishGame(finalScore) {
     setScore(finalScore)
+    // Record the attempt for the history screen. Fire-and-forget: a failed save
+    // must never block showing the results.
+    saveAttempt({
+      livre: selectedBook,
+      score: finalScore,
+      total: questions.length,
+    }).catch(() => {})
     setScreen(SCREENS.RESULTS)
   }
 
   return (
     <div className="app">
-      {screen === SCREENS.HOME && <BookSelect onSelect={startGame} />}
+      {screen === SCREENS.HOME && (
+        <BookSelect
+          onSelect={startGame}
+          onShowHistory={() => setScreen(SCREENS.HISTORY)}
+        />
+      )}
       {screen === SCREENS.QUIZ && (
         <Quiz
           livre={selectedBook}
@@ -46,7 +61,11 @@ export default function App() {
           total={questions.length}
           onReplay={() => startGame(selectedBook)}
           onChangeBook={() => setScreen(SCREENS.HOME)}
+          onShowHistory={() => setScreen(SCREENS.HISTORY)}
         />
+      )}
+      {screen === SCREENS.HISTORY && (
+        <HistoryScreen onBack={() => setScreen(SCREENS.HOME)} />
       )}
     </div>
   )

@@ -6,7 +6,14 @@ function getMessage(score, total) {
   return { emoji: '📖', text: 'Continue à lire la Bible, tu vas progresser !' }
 }
 
-export default function Results({ livre, score, total, onReplay, onChangeBook }) {
+export default function Results({
+  livre,
+  score,
+  total,
+  onReplay,
+  onChangeBook,
+  onShowHistory,
+}) {
   const { emoji, text } = getMessage(score, total)
   const percent = total > 0 ? Math.round((score / total) * 100) : 0
 
@@ -28,6 +35,11 @@ export default function Results({ livre, score, total, onReplay, onChangeBook })
           <button className="btn-secondary" onClick={onChangeBook}>
             <span aria-hidden="true">📚</span> Choisir un autre livre
           </button>
+          {onShowHistory && (
+            <button className="btn-link" onClick={onShowHistory}>
+              <span aria-hidden="true">📊</span> Mon historique
+            </button>
+          )}
         </div>
       </div>
     </div>

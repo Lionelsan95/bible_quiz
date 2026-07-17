@@ -2,7 +2,7 @@ import { getBooks } from '../data/questions.js'
 
 const books = getBooks()
 
-export default function BookSelect({ onSelect }) {
+export default function BookSelect({ onSelect, onShowHistory }) {
   return (
     <div className="screen">
       <header className="home-header">
@@ -11,6 +11,11 @@ export default function BookSelect({ onSelect }) {
           Choisis un livre de la Bible et réponds à 10 questions pour tester tes
           connaissances !
         </p>
+        {onShowHistory && (
+          <button className="btn-link" onClick={onShowHistory}>
+            <span aria-hidden="true">📊</span> Mon historique
+          </button>
+        )}
       </header>
       <div className="book-grid">
         {books.map(({ livre, count }) => (

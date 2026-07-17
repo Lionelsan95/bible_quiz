@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App.jsx'
@@ -49,6 +49,12 @@ async function playThroughQuiz(user) {
   await user.click(screen.getByText('Bon').closest('button'))
   await user.click(screen.getByText('Voir mon score 🎉'))
 }
+
+// L'historique s'appuie sur le vrai localStorage de jsdom (non mocké dans ce
+// fichier) : on le vide avant chaque test pour rester isolé.
+beforeEach(() => {
+  localStorage.clear()
+})
 
 describe('App - flux complet', () => {
   it("affiche l'accueil avec la liste des livres au démarrage", () => {
@@ -109,5 +115,35 @@ describe('App - flux complet', () => {
     await user.click(screen.getByText('← Quitter'))
 
     expect(screen.getByText('📖 Quiz Biblique')).toBeInTheDocument()
+  })
+})
+
+describe('App - historique', () => {
+  it('depuis l\'accueil, "Mon historique" affiche l\'écran d\'historique', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /Mon historique/ }))
+
+    expect(screen.getByText('Mon historique')).toBeInTheDocument()
+    await screen.findByText(
+      'Aucune partie enregistrée pour le moment. Termine un quiz pour le voir apparaître ici !',
+    )
+  })
+
+  it('après une partie terminée, l\'historique affiche la tentative tout juste jouée', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /Genèse/ }))
+    await playThroughQuiz(user)
+
+    expect(screen.getByText('Quiz terminé !')).toBeInTheDocument()
+    expect(screen.getByText('2 / 2')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Mon historique/ }))
+
+    expect(await screen.findByText('Genèse')).toBeInTheDocument()
+    expect(screen.getByText('2 / 2')).toBeInTheDocument()
   })
 })

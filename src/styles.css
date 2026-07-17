@@ -330,6 +330,22 @@ button:focus-visible {
   margin-top: 1rem;
 }
 
+/* Bouton texte discret (ex. accès à l'historique). */
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 0.4rem 0.25rem;
+  margin-top: 0.75rem;
+}
+
+.btn-link:hover {
+  color: var(--accent-dark);
+  text-decoration: underline;
+}
+
 /* ---------- Résultats ---------- */
 
 .results {
@@ -386,6 +402,63 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+/* ---------- Historique ---------- */
+
+.history-title {
+  color: var(--accent);
+  margin-bottom: 1.25rem;
+}
+
+.history-status,
+.history-empty {
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.history-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+
+.history-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.history-book {
+  font-weight: bold;
+  color: var(--accent);
+  font-size: 1.05rem;
+}
+
+.history-date {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.history-score {
+  flex-shrink: 0;
+  font-weight: bold;
+  font-size: 1.15rem;
+  color: var(--gold);
 }
 
 /* ---------- Mobile ---------- */
