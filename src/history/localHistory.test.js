@@ -33,7 +33,11 @@ describe('saveAttempt + listAttempts', () => {
 
     const attempts = listAttempts()
 
-    expect(attempts.map((a) => a.livre)).toEqual(['Lévitique', 'Exode', 'Genèse'])
+    expect(attempts.map((a) => a.livre)).toEqual([
+      'Lévitique',
+      'Exode',
+      'Genèse',
+    ])
   })
 
   it('plafonne le nombre de tentatives conservées à 100', () => {
@@ -58,7 +62,7 @@ describe('listAttempts - tolérance aux données corrompues', () => {
     expect(listAttempts()).toEqual([])
   })
 
-  it('retourne un tableau vide si la valeur stockée n\'est pas un tableau', () => {
+  it("retourne un tableau vide si la valeur stockée n'est pas un tableau", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ not: 'an array' }))
 
     expect(listAttempts()).toEqual([])
@@ -89,12 +93,14 @@ describe('saveAttempt - résilience au stockage', () => {
         throw new Error('QuotaExceededError')
       })
 
-    expect(() => saveAttempt({ livre: 'Genèse', score: 5, total: 10 })).not.toThrow()
+    expect(() =>
+      saveAttempt({ livre: 'Genèse', score: 5, total: 10 }),
+    ).not.toThrow()
 
     setItemSpy.mockRestore()
   })
 
-  it('retourne quand même l\'enregistrement construit même si le stockage échoue', () => {
+  it("retourne quand même l'enregistrement construit même si le stockage échoue", () => {
     const setItemSpy = vi
       .spyOn(Storage.prototype, 'setItem')
       .mockImplementation(() => {

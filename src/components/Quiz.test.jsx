@@ -30,7 +30,12 @@ function answer(user, correct) {
 describe('Quiz', () => {
   it('affiche la progression Question X / Y avec un role progressbar', () => {
     render(
-      <Quiz livre="TestLivre" questions={questions} onFinish={() => {}} onQuit={() => {}} />,
+      <Quiz
+        livre="TestLivre"
+        questions={questions}
+        onFinish={() => {}}
+        onQuit={() => {}}
+      />,
     )
 
     expect(screen.getByText('Question 1 / 2')).toBeInTheDocument()
@@ -43,7 +48,12 @@ describe('Quiz', () => {
   it("n'affiche pas de bouton suivant avant d'avoir répondu, puis l'affiche après", async () => {
     const user = userEvent.setup()
     render(
-      <Quiz livre="TestLivre" questions={questions} onFinish={() => {}} onQuit={() => {}} />,
+      <Quiz
+        livre="TestLivre"
+        questions={questions}
+        onFinish={() => {}}
+        onQuit={() => {}}
+      />,
     )
 
     expect(screen.queryByText('Question suivante →')).not.toBeInTheDocument()
@@ -56,7 +66,12 @@ describe('Quiz', () => {
   it('passe à la question suivante et met à jour la progression', async () => {
     const user = userEvent.setup()
     render(
-      <Quiz livre="TestLivre" questions={questions} onFinish={() => {}} onQuit={() => {}} />,
+      <Quiz
+        livre="TestLivre"
+        questions={questions}
+        onFinish={() => {}}
+        onQuit={() => {}}
+      />,
     )
 
     await answer(user, true)
@@ -64,14 +79,22 @@ describe('Quiz', () => {
 
     expect(screen.getByText('Question 2 / 2')).toBeInTheDocument()
     expect(screen.getByText('Question deux ?')).toBeInTheDocument()
-    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '2')
+    expect(screen.getByRole('progressbar')).toHaveAttribute(
+      'aria-valuenow',
+      '2',
+    )
   })
 
   it('sur la dernière question, propose "Voir mon score 🎉" et appelle onFinish avec le score final', async () => {
     const user = userEvent.setup()
     const onFinish = vi.fn()
     render(
-      <Quiz livre="TestLivre" questions={questions} onFinish={onFinish} onQuit={() => {}} />,
+      <Quiz
+        livre="TestLivre"
+        questions={questions}
+        onFinish={onFinish}
+        onQuit={() => {}}
+      />,
     )
 
     await answer(user, true) // question 1 : correcte
@@ -91,7 +114,12 @@ describe('Quiz', () => {
     const user = userEvent.setup()
     const onQuit = vi.fn()
     render(
-      <Quiz livre="TestLivre" questions={questions} onFinish={() => {}} onQuit={onQuit} />,
+      <Quiz
+        livre="TestLivre"
+        questions={questions}
+        onFinish={() => {}}
+        onQuit={onQuit}
+      />,
     )
 
     await user.click(screen.getByText('← Quitter'))
@@ -101,7 +129,12 @@ describe('Quiz', () => {
 
   it('retourne null sans planter si la liste de questions est vide', () => {
     const { container } = render(
-      <Quiz livre="TestLivre" questions={[]} onFinish={() => {}} onQuit={() => {}} />,
+      <Quiz
+        livre="TestLivre"
+        questions={[]}
+        onFinish={() => {}}
+        onQuit={() => {}}
+      />,
     )
 
     expect(container).toBeEmptyDOMElement()

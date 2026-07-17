@@ -51,7 +51,9 @@ describe('QuestionCard - mode simple (une seule bonne réponse)', () => {
     expect(onAnswer).toHaveBeenCalledWith(false)
     expect(screen.getByText('Lyon').closest('button')).toHaveClass('wrong')
     expect(screen.getByText('Paris').closest('button')).toHaveClass('correct')
-    expect(screen.getByText('Marseille').closest('button')).toHaveClass('dimmed')
+    expect(screen.getByText('Marseille').closest('button')).toHaveClass(
+      'dimmed',
+    )
     expect(screen.getByText('Nice').closest('button')).toHaveClass('dimmed')
     expect(screen.getByText(/Mauvaise réponse\./)).toBeInTheDocument()
   })
@@ -92,7 +94,9 @@ describe('QuestionCard - mode multi (plusieurs bonnes réponses)', () => {
   it('affiche l\'indice "Choisis N réponses" et le bouton Valider désactivé au départ', () => {
     render(<QuestionCard question={multiQuestion} onAnswer={() => {}} />)
 
-    expect(screen.getByText(/Choisis 2 réponses puis valide/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Choisis 2 réponses puis valide/),
+    ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Valider' })).toBeDisabled()
   })
 
@@ -161,7 +165,9 @@ describe('QuestionCard - mode multi (plusieurs bonnes réponses)', () => {
     await user.click(screen.getByText('Citron').closest('button'))
     await user.click(screen.getByRole('button', { name: 'Valider' }))
 
-    expect(screen.queryByRole('button', { name: 'Valider' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Valider' }),
+    ).not.toBeInTheDocument()
     for (const opt of multiQuestion.options) {
       expect(screen.getByText(opt).closest('button')).toHaveAttribute(
         'aria-disabled',

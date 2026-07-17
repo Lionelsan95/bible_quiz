@@ -49,7 +49,7 @@ describe('pickQuestions', () => {
     expect(result.length).toBe(5)
   })
 
-  it("ne retourne jamais plus de questions que celles disponibles pour le livre", () => {
+  it('ne retourne jamais plus de questions que celles disponibles pour le livre', () => {
     const result = pickQuestions('Genèse', 1000)
     expect(result.length).toBe(40)
   })
@@ -87,7 +87,9 @@ describe('pickQuestions', () => {
       expect(q.reponses_correctes).toEqual(sorted)
 
       // Le nombre de bonnes réponses est inchangé.
-      expect(q.reponses_correctes.length).toBe(original.reponses_correctes.length)
+      expect(q.reponses_correctes.length).toBe(
+        original.reponses_correctes.length,
+      )
 
       // Les TEXTES des bonnes réponses sont préservés après le remappage des indices.
       const remappedCorrectTexts = q.reponses_correctes

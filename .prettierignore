@@ -1,0 +1,9 @@
+dist
+node_modules
+data/quiz_biblique.json
+
+# Docs are hand-authored; leave markdown formatting to the author.
+*.md
+
+# Agent/tooling config, not app source.
+.claude

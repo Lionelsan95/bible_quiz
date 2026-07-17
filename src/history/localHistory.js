@@ -12,7 +12,10 @@ const STORAGE_KEY = 'quiz-biblique.attempts.v1'
 const MAX_ATTEMPTS = 100
 
 function newId() {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+  ) {
     return crypto.randomUUID()
   }
   return `attempt_${Date.now()}_${Math.random().toString(36).slice(2)}`

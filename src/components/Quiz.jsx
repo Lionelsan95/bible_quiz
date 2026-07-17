@@ -49,12 +49,18 @@ export default function Quiz({ livre, questions, onFinish, onQuit }) {
         >
           <div
             className="progress-fill"
-            style={{ width: `${((index + (answered ? 1 : 0)) / total) * 100}%` }}
+            style={{
+              width: `${((index + (answered ? 1 : 0)) / total) * 100}%`,
+            }}
           />
         </div>
       </header>
 
-      <QuestionCard key={question.id} question={question} onAnswer={handleAnswer} />
+      <QuestionCard
+        key={question.id}
+        question={question}
+        onAnswer={handleAnswer}
+      />
 
       {answered && (
         <button className="btn-primary btn-next" onClick={handleNext}>

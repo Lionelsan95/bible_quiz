@@ -19,7 +19,9 @@ describe('HistoryScreen', () => {
     expect(screen.getByText('Chargement…')).toBeInTheDocument()
 
     expect(
-      await screen.findByText('Aucune partie enregistrée pour le moment. Termine un quiz pour le voir apparaître ici !'),
+      await screen.findByText(
+        'Aucune partie enregistrée pour le moment. Termine un quiz pour le voir apparaître ici !',
+      ),
     ).toBeInTheDocument()
     expect(screen.queryByText('Chargement…')).not.toBeInTheDocument()
   })
@@ -68,7 +70,9 @@ describe('HistoryScreen', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText('Aucune partie enregistrée pour le moment. Termine un quiz pour le voir apparaître ici !'),
+        screen.getByText(
+          'Aucune partie enregistrée pour le moment. Termine un quiz pour le voir apparaître ici !',
+        ),
       ).toBeInTheDocument()
     })
   })

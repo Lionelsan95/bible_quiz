@@ -6,7 +6,13 @@ import Results from './Results.jsx'
 describe('Results', () => {
   it('affiche le score et le pourcentage', () => {
     render(
-      <Results livre="Genèse" score={7} total={10} onReplay={() => {}} onChangeBook={() => {}} />,
+      <Results
+        livre="Genèse"
+        score={7}
+        total={10}
+        onReplay={() => {}}
+        onChangeBook={() => {}}
+      />,
     )
 
     expect(screen.getByText('Quiz terminé !')).toBeInTheDocument()
@@ -26,7 +32,13 @@ describe('Results', () => {
     [0, 10, 'Continue à lire la Bible, tu vas progresser !'],
   ])('affiche le bon message pour %i/%i', (score, total, expectedMessage) => {
     render(
-      <Results livre="Genèse" score={score} total={total} onReplay={() => {}} onChangeBook={() => {}} />,
+      <Results
+        livre="Genèse"
+        score={score}
+        total={total}
+        onReplay={() => {}}
+        onChangeBook={() => {}}
+      />,
     )
 
     expect(screen.getByText(expectedMessage)).toBeInTheDocument()
@@ -34,7 +46,13 @@ describe('Results', () => {
 
   it('gère un total de 0 sans afficher NaN', () => {
     render(
-      <Results livre="Genèse" score={0} total={0} onReplay={() => {}} onChangeBook={() => {}} />,
+      <Results
+        livre="Genèse"
+        score={0}
+        total={0}
+        onReplay={() => {}}
+        onChangeBook={() => {}}
+      />,
     )
 
     expect(screen.getByText('0 / 0')).toBeInTheDocument()
@@ -46,7 +64,13 @@ describe('Results', () => {
     const user = userEvent.setup()
     const onReplay = vi.fn()
     render(
-      <Results livre="Genèse" score={5} total={10} onReplay={onReplay} onChangeBook={() => {}} />,
+      <Results
+        livre="Genèse"
+        score={5}
+        total={10}
+        onReplay={onReplay}
+        onChangeBook={() => {}}
+      />,
     )
 
     // L'emoji est dans un span aria-hidden, on cible donc le bouton par son nom accessible.
@@ -59,10 +83,18 @@ describe('Results', () => {
     const user = userEvent.setup()
     const onChangeBook = vi.fn()
     render(
-      <Results livre="Genèse" score={5} total={10} onReplay={() => {}} onChangeBook={onChangeBook} />,
+      <Results
+        livre="Genèse"
+        score={5}
+        total={10}
+        onReplay={() => {}}
+        onChangeBook={onChangeBook}
+      />,
     )
 
-    await user.click(screen.getByRole('button', { name: /Choisir un autre livre/ }))
+    await user.click(
+      screen.getByRole('button', { name: /Choisir un autre livre/ }),
+    )
 
     expect(onChangeBook).toHaveBeenCalledTimes(1)
   })

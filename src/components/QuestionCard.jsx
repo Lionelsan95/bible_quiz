@@ -46,7 +46,8 @@ export default function QuestionCard({ question, onAnswer }) {
       <p className="question-text">{question.question}</p>
       {isMulti && !revealed && (
         <p className="multi-hint">
-          <span aria-hidden="true">✅</span> Choisis {correct.length} réponses puis valide
+          <span aria-hidden="true">✅</span> Choisis {correct.length} réponses
+          puis valide
         </p>
       )}
       <div className="options">
@@ -56,17 +57,23 @@ export default function QuestionCard({ question, onAnswer }) {
             className={optionClass(i)}
             onClick={() => handleClick(i)}
             aria-disabled={revealed || undefined}
-            aria-pressed={isMulti && !revealed ? selected.includes(i) : undefined}
+            aria-pressed={
+              isMulti && !revealed ? selected.includes(i) : undefined
+            }
           >
             <span className="option-letter" aria-hidden="true">
               {String.fromCharCode(65 + i)}
             </span>
             <span className="option-text">{opt}</span>
             {revealed && correct.includes(i) && (
-              <span className="option-mark" aria-hidden="true">✓</span>
+              <span className="option-mark" aria-hidden="true">
+                ✓
+              </span>
             )}
             {revealed && !correct.includes(i) && selected.includes(i) && (
-              <span className="option-mark" aria-hidden="true">✗</span>
+              <span className="option-mark" aria-hidden="true">
+                ✗
+              </span>
             )}
           </button>
         ))}

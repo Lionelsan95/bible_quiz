@@ -5,7 +5,7 @@ import App from './App.jsx'
 
 // pickQuestions() utilise Math.random (mélange) : on mocke le module de données
 // pour obtenir un jeu de questions déterministe dans ce test d'intégration.
-const { mockQuestions, getBooksMock, pickQuestionsMock } = vi.hoisted(() => {
+const { getBooksMock, pickQuestionsMock } = vi.hoisted(() => {
   const mockQuestions = [
     {
       id: 'mock_1',
@@ -26,7 +26,6 @@ const { mockQuestions, getBooksMock, pickQuestionsMock } = vi.hoisted(() => {
   ]
 
   return {
-    mockQuestions,
     getBooksMock: vi.fn(() => [
       { livre: 'Genèse', count: 40 },
       { livre: 'Exode', count: 35 },
@@ -65,7 +64,7 @@ describe('App - flux complet', () => {
     expect(screen.getByRole('button', { name: /Exode/ })).toBeInTheDocument()
   })
 
-  it('sélection d\'un livre → quiz → résultats → rejouer le même livre', async () => {
+  it("sélection d'un livre → quiz → résultats → rejouer le même livre", async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -90,7 +89,7 @@ describe('App - flux complet', () => {
     expect(pickQuestionsMock).toHaveBeenCalledWith('Genèse', 10)
   })
 
-  it('sélection d\'un livre → quiz → résultats → changer de livre revient à l\'accueil', async () => {
+  it("sélection d'un livre → quiz → résultats → changer de livre revient à l'accueil", async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -99,13 +98,15 @@ describe('App - flux complet', () => {
 
     expect(screen.getByText('Quiz terminé !')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: /Choisir un autre livre/ }))
+    await user.click(
+      screen.getByRole('button', { name: /Choisir un autre livre/ }),
+    )
 
     expect(screen.getByText('📖 Quiz Biblique')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Genèse/ })).toBeInTheDocument()
   })
 
-  it('quitter le quiz en cours de route revient à l\'accueil', async () => {
+  it("quitter le quiz en cours de route revient à l'accueil", async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -119,7 +120,7 @@ describe('App - flux complet', () => {
 })
 
 describe('App - historique', () => {
-  it('depuis l\'accueil, "Mon historique" affiche l\'écran d\'historique', async () => {
+  it("depuis l'accueil, \"Mon historique\" affiche l'écran d'historique", async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -131,7 +132,7 @@ describe('App - historique', () => {
     )
   })
 
-  it('après une partie terminée, l\'historique affiche la tentative tout juste jouée', async () => {
+  it("après une partie terminée, l'historique affiche la tentative tout juste jouée", async () => {
     const user = userEvent.setup()
     render(<App />)
 
