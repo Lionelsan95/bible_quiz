@@ -22,16 +22,17 @@ function normalizeFr(q) {
   }
 }
 
-// The English bank is authored directly in the internal shape, so normalization
-// pins the exact set of keys we depend on (and copies arrays, as above).
+// The English bank mirrors the French file's structure with English snake_case
+// keys (question / correct_answers / number_of_correct_answers); map them to the
+// internal shape (and copy arrays, as above).
 function normalizeEn(q) {
   return {
     id: q.id,
     book: q.book,
-    text: q.text,
+    text: q.question,
     options: [...q.options],
-    correctAnswers: [...q.correctAnswers],
-    correctCount: q.correctCount,
+    correctAnswers: [...q.correct_answers],
+    correctCount: q.number_of_correct_answers,
     reference: q.reference,
     difficulty: q.difficulty,
   }

@@ -46,9 +46,13 @@ describe('getBooks', () => {
     expect(getBooks()).toEqual(getBooks('fr'))
   })
 
-  it('returns the English bank (sample: Genesis only) for lang="en"', () => {
+  it('returns the English bank (all books) for lang="en"', () => {
     const books = getBooks('en')
-    expect(books).toEqual([{ book: 'Genesis', count: 4 }])
+    expect(books.length).toBe(32)
+    expect(books.find((b) => b.book === 'Genesis')).toEqual({
+      book: 'Genesis',
+      count: 40,
+    })
   })
 })
 
@@ -136,7 +140,7 @@ describe('pickQuestions', () => {
 
   it('returns English questions for lang="en"', () => {
     const result = pickQuestions('Genesis', 10, 'en')
-    expect(result.length).toBe(4)
+    expect(result.length).toBe(10)
     for (const q of result) {
       expect(q.book).toBe('Genesis')
       expect(typeof q.text).toBe('string')
