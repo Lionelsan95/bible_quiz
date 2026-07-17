@@ -1,20 +1,26 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { listAttempts } from '../history/historyStore.js'
 
-// French locale date formatting per project convention (French UI strings).
-const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
-  dateStyle: 'long',
-  timeStyle: 'short',
-})
-
-function formatDate(iso) {
-  const date = new Date(iso)
-  return Number.isNaN(date.getTime()) ? '' : dateFormatter.format(date)
-}
-
 export default function HistoryScreen({ onBack }) {
+  const { t, i18n } = useTranslation()
   // null = still loading; array = loaded (possibly empty).
   const [attempts, setAttempts] = useState(null)
+
+  // Dates follow the active language (fr-FR, en, …). Rebuilt only on language
+  // change — constructing an Intl.DateTimeFormat is comparatively expensive.
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(i18n.language, {
+        dateStyle: 'long',
+        timeStyle: 'short',
+      }),
+    [i18n.language],
+  )
+  function formatDate(iso) {
+    const date = new Date(iso)
+    return Number.isNaN(date.getTime()) ? '' : dateFormatter.format(date)
+  }
 
   useEffect(() => {
     let active = true
@@ -35,19 +41,18 @@ export default function HistoryScreen({ onBack }) {
   return (
     <div className="screen history">
       <button className="btn-quit" onClick={onBack}>
-        ← Retour
+        {t('history.back')}
       </button>
       <h2 className="history-title">
-        <span aria-hidden="true">📊</span> Mon historique
+        <span aria-hidden="true">📊</span> {t('common.history')}
       </h2>
 
-      {attempts === null && <p className="history-status">Chargement…</p>}
+      {attempts === null && (
+        <p className="history-status">{t('history.loading')}</p>
+      )}
 
       {attempts !== null && attempts.length === 0 && (
-        <p className="history-empty">
-          Aucune partie enregistrée pour le moment. Termine un quiz pour le voir
-          apparaître ici !
-        </p>
+        <p className="history-empty">{t('history.empty')}</p>
       )}
 
       {attempts !== null && attempts.length > 0 && (

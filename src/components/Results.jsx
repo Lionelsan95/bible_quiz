@@ -1,14 +1,12 @@
+import { useTranslation } from 'react-i18next'
+
+// Returns the decorative emoji plus the translation key for the score message.
 function getMessage(score, total) {
   const ratio = total > 0 ? score / total : 0
-  if (ratio >= 0.9)
-    return { emoji: '🌟', text: 'Excellent ! Tu connais très bien ce livre !' }
-  if (ratio >= 0.7)
-    return {
-      emoji: '👏',
-      text: 'Très bien ! Encore un petit effort pour la perfection.',
-    }
-  if (ratio >= 0.5) return { emoji: '💪', text: 'Pas mal, continue comme ça !' }
-  return { emoji: '📖', text: 'Continue à lire la Bible, tu vas progresser !' }
+  if (ratio >= 0.9) return { emoji: '🌟', key: 'results.messageExcellent' }
+  if (ratio >= 0.7) return { emoji: '👏', key: 'results.messageGood' }
+  if (ratio >= 0.5) return { emoji: '💪', key: 'results.messageOk' }
+  return { emoji: '📖', key: 'results.messageKeep' }
 }
 
 export default function Results({
@@ -19,7 +17,8 @@ export default function Results({
   onChangeBook,
   onShowHistory,
 }) {
-  const { emoji, text } = getMessage(score, total)
+  const { t } = useTranslation()
+  const { emoji, key } = getMessage(score, total)
   const percent = total > 0 ? Math.round((score / total) * 100) : 0
 
   return (
@@ -28,23 +27,23 @@ export default function Results({
         <span className="results-emoji" aria-hidden="true">
           {emoji}
         </span>
-        <h2>Quiz terminé !</h2>
+        <h2>{t('results.title')}</h2>
         <p className="results-book">{book}</p>
         <p className="results-score">
           {score} / {total}
         </p>
-        <p className="results-percent">{percent}% de bonnes réponses</p>
-        <p className="results-message">{text}</p>
+        <p className="results-percent">{t('results.percent', { percent })}</p>
+        <p className="results-message">{t(key)}</p>
         <div className="results-actions">
           <button className="btn-primary" onClick={onReplay}>
-            <span aria-hidden="true">🔄</span> Rejouer ce livre
+            <span aria-hidden="true">🔄</span> {t('results.replay')}
           </button>
           <button className="btn-secondary" onClick={onChangeBook}>
-            <span aria-hidden="true">📚</span> Choisir un autre livre
+            <span aria-hidden="true">📚</span> {t('results.changeBook')}
           </button>
           {onShowHistory && (
             <button className="btn-link" onClick={onShowHistory}>
-              <span aria-hidden="true">📊</span> Mon historique
+              <span aria-hidden="true">📊</span> {t('common.history')}
             </button>
           )}
         </div>

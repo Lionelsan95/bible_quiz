@@ -1,0 +1,49 @@
+{
+  "common": {
+    "history": "My history"
+  },
+  "language": {
+    "label": "Language",
+    "fr": "FR",
+    "en": "EN",
+    "frFull": "Français",
+    "enFull": "English"
+  },
+  "home": {
+    "title": "Bible Quiz",
+    "subtitle": "Choose a book of the Bible and answer 10 questions to test your knowledge!"
+  },
+  "book": {
+    "count_one": "{{count}} question",
+    "count_other": "{{count}} questions"
+  },
+  "quiz": {
+    "quit": "← Quit",
+    "progress": "Question {{current}} / {{total}}",
+    "progressAria": "Question {{current}} of {{total}}",
+    "next": "Next question →",
+    "seeScore": "See my score"
+  },
+  "questionCard": {
+    "multiHint": "Choose {{count}} answers then submit",
+    "validate": "Submit",
+    "correct": "Correct answer!",
+    "incorrect": "Wrong answer.",
+    "reference": "Reference: {{ref}}"
+  },
+  "results": {
+    "title": "Quiz complete!",
+    "percent": "{{percent}}% correct",
+    "replay": "Replay this book",
+    "changeBook": "Choose another book",
+    "messageExcellent": "Excellent! You know this book very well!",
+    "messageGood": "Well done! A little more effort to reach perfection.",
+    "messageOk": "Not bad, keep it up!",
+    "messageKeep": "Keep reading the Bible, you'll improve!"
+  },
+  "history": {
+    "back": "← Back",
+    "loading": "Loading…",
+    "empty": "No games saved yet. Finish a quiz to see it appear here!"
+  }
+}

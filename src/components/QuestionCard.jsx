@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function QuestionCard({ question, onAnswer }) {
+  const { t } = useTranslation()
   const [selected, setSelected] = useState([])
   const [revealed, setRevealed] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
@@ -46,8 +48,8 @@ export default function QuestionCard({ question, onAnswer }) {
       <p className="question-text">{question.text}</p>
       {isMulti && !revealed && (
         <p className="multi-hint">
-          <span aria-hidden="true">✅</span> Choisis {correct.length} réponses
-          puis valide
+          <span aria-hidden="true">✅</span>{' '}
+          {t('questionCard.multiHint', { count: correct.length })}
         </p>
       )}
       <div className="options">
@@ -84,15 +86,18 @@ export default function QuestionCard({ question, onAnswer }) {
           disabled={selected.length !== correct.length}
           onClick={() => submit(selected)}
         >
-          Valider
+          {t('questionCard.validate')}
         </button>
       )}
       {/* Live region kept permanently mounted so the result is announced by screen readers. */}
       <p className="reference" aria-live="polite">
         {revealed && (
           <>
-            {isCorrect ? 'Bonne réponse !' : 'Mauvaise réponse.'}{' '}
-            <span aria-hidden="true">📖</span> Référence : {question.reference}
+            {isCorrect
+              ? t('questionCard.correct')
+              : t('questionCard.incorrect')}{' '}
+            <span aria-hidden="true">📖</span>{' '}
+            {t('questionCard.reference', { ref: question.reference })}
           </>
         )}
       </p>

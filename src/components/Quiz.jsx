@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import QuestionCard from './QuestionCard.jsx'
 
 export default function Quiz({ book, questions, onFinish, onQuit }) {
+  const { t } = useTranslation()
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [answered, setAnswered] = useState(false)
@@ -31,12 +33,12 @@ export default function Quiz({ book, questions, onFinish, onQuit }) {
     <div className="screen">
       <header className="quiz-header">
         <button className="btn-quit" onClick={onQuit}>
-          ← Quitter
+          {t('quiz.quit')}
         </button>
         <div className="quiz-progress">
           <span className="quiz-book">{book}</span>
           <span className="quiz-count">
-            Question {index + 1} / {total}
+            {t('quiz.progress', { current: index + 1, total })}
           </span>
         </div>
         <div
@@ -45,7 +47,7 @@ export default function Quiz({ book, questions, onFinish, onQuit }) {
           aria-valuenow={index + 1}
           aria-valuemin={1}
           aria-valuemax={total}
-          aria-label={`Question ${index + 1} sur ${total}`}
+          aria-label={t('quiz.progressAria', { current: index + 1, total })}
         >
           <div
             className="progress-fill"
@@ -64,7 +66,13 @@ export default function Quiz({ book, questions, onFinish, onQuit }) {
 
       {answered && (
         <button className="btn-primary btn-next" onClick={handleNext}>
-          {isLast ? 'Voir mon score 🎉' : 'Question suivante →'}
+          {isLast ? (
+            <>
+              {t('quiz.seeScore')} <span aria-hidden="true">🎉</span>
+            </>
+          ) : (
+            t('quiz.next')
+          )}
         </button>
       )}
     </div>

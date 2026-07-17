@@ -46,7 +46,8 @@ async function playThroughQuiz(user) {
 
   // Question 2 (last)
   await user.click(screen.getByText('Bon').closest('button'))
-  await user.click(screen.getByText('Voir mon score 🎉'))
+  // The emoji is in an aria-hidden span, so target the button by its accessible name.
+  await user.click(screen.getByRole('button', { name: /Voir mon score/ }))
 }
 
 // History relies on jsdom's real localStorage (not mocked in this file): it
@@ -59,7 +60,9 @@ describe('App - full flow', () => {
   it('shows the home screen with the book list on startup', () => {
     render(<App />)
 
-    expect(screen.getByText('📖 Quiz Biblique')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /Quiz Biblique/ }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Genèse/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Exode/ })).toBeInTheDocument()
   })
@@ -102,7 +105,9 @@ describe('App - full flow', () => {
       screen.getByRole('button', { name: /Choisir un autre livre/ }),
     )
 
-    expect(screen.getByText('📖 Quiz Biblique')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /Quiz Biblique/ }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Genèse/ })).toBeInTheDocument()
   })
 
@@ -115,7 +120,9 @@ describe('App - full flow', () => {
 
     await user.click(screen.getByText('← Quitter'))
 
-    expect(screen.getByText('📖 Quiz Biblique')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /Quiz Biblique/ }),
+    ).toBeInTheDocument()
   })
 })
 

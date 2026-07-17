@@ -85,7 +85,7 @@ describe('Quiz', () => {
     )
   })
 
-  it('on the last question, offers "Voir mon score 🎉" and calls onFinish with the final score', async () => {
+  it('on the last question, offers "Voir mon score" and calls onFinish with the final score', async () => {
     const user = userEvent.setup()
     const onFinish = vi.fn()
     render(
@@ -101,7 +101,8 @@ describe('Quiz', () => {
     await user.click(screen.getByText('Question suivante →'))
 
     await answer(user, false) // question 2: incorrect
-    const finishBtn = screen.getByText('Voir mon score 🎉')
+    // The emoji is in an aria-hidden span, so target the button by its accessible name.
+    const finishBtn = screen.getByRole('button', { name: /Voir mon score/ })
     expect(finishBtn).toBeInTheDocument()
 
     await user.click(finishBtn)

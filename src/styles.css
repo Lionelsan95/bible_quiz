@@ -78,6 +78,35 @@ button:focus-visible {
   margin-bottom: 2rem;
 }
 
+/* Sélecteur de langue (accueil uniquement). */
+.language-toggle {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.lang-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: bold;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+}
+
+.lang-btn:hover {
+  border-color: var(--gold);
+  color: var(--accent);
+}
+
+.lang-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
 .home-header h1 {
   font-size: 2.2rem;
   color: var(--accent);

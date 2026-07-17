@@ -1,0 +1,49 @@
+{
+  "common": {
+    "history": "Mon historique"
+  },
+  "language": {
+    "label": "Langue",
+    "fr": "FR",
+    "en": "EN",
+    "frFull": "Français",
+    "enFull": "English"
+  },
+  "home": {
+    "title": "Quiz Biblique",
+    "subtitle": "Choisis un livre de la Bible et réponds à 10 questions pour tester tes connaissances !"
+  },
+  "book": {
+    "count_one": "{{count}} question",
+    "count_other": "{{count}} questions"
+  },
+  "quiz": {
+    "quit": "← Quitter",
+    "progress": "Question {{current}} / {{total}}",
+    "progressAria": "Question {{current}} sur {{total}}",
+    "next": "Question suivante →",
+    "seeScore": "Voir mon score"
+  },
+  "questionCard": {
+    "multiHint": "Choisis {{count}} réponses puis valide",
+    "validate": "Valider",
+    "correct": "Bonne réponse !",
+    "incorrect": "Mauvaise réponse.",
+    "reference": "Référence : {{ref}}"
+  },
+  "results": {
+    "title": "Quiz terminé !",
+    "percent": "{{percent}}% de bonnes réponses",
+    "replay": "Rejouer ce livre",
+    "changeBook": "Choisir un autre livre",
+    "messageExcellent": "Excellent ! Tu connais très bien ce livre !",
+    "messageGood": "Très bien ! Encore un petit effort pour la perfection.",
+    "messageOk": "Pas mal, continue comme ça !",
+    "messageKeep": "Continue à lire la Bible, tu vas progresser !"
+  },
+  "history": {
+    "back": "← Retour",
+    "loading": "Chargement…",
+    "empty": "Aucune partie enregistrée pour le moment. Termine un quiz pour le voir apparaître ici !"
+  }
+}
