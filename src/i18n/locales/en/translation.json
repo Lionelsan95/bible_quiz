@@ -9,6 +9,12 @@
     "frFull": "Français",
     "enFull": "English"
   },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "auto": "Auto"
+  },
   "home": {
     "title": "Bible Quiz",
     "subtitle": "Choose a book of the Bible and answer 10 questions to test your knowledge!"

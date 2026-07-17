@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './i18n/index.js' // must run before the App module graph is evaluated
+import './theme/theme.js'
 import App from './App.jsx'
 import './styles.css'
 

@@ -3,10 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
       content="Quiz biblique : teste tes connaissances livre par livre."
     />
+    <script>
+      // Apply the persisted theme before first paint (avoids a light flash for
+      // dark-preferring users). The storage key is duplicated in
+      // src/theme/theme.js and the test setup — keep the three in sync.
+      ;(function () {
+        var pref = 'auto'
+        try {
+          var stored = localStorage.getItem('quiz-biblique.theme')
+          if (stored === 'light' || stored === 'dark' || stored === 'auto')
+            pref = stored
+        } catch (e) {}
+        // Resolve + apply even if storage above threw, so a dark-OS user on the
+        // default still avoids the light flash.
+        try {
+          var resolved =
+            pref === 'auto'
+              ? window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+              : pref
+          document.documentElement.setAttribute('data-theme', resolved)
+        } catch (e) {}
+      })()
+    </script>
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>"

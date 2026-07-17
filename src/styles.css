@@ -1,17 +1,51 @@
 :root {
+  color-scheme: light;
   --bg: #faf6ee;
   --card: #ffffff;
   --ink: #2d2a26;
   --muted: #7a736a;
+  /* --accent is the text/border role; --accent-bg is the solid-background role
+     (used under white text). They're equal in light mode, and diverge in dark
+     because one colour can't be both legible-as-text and a white-text bg.
+     Same split for --green/--green-solid and --red/--red-solid. */
   --accent: #7a2e2e;
+  --accent-bg: #7a2e2e;
   --accent-dark: #5e2323;
+  --accent-hover: #5e2323;
   --gold: #c9a227;
   --green: #2e7d43;
+  --green-solid: #2e7d43;
   --green-bg: #e6f4ea;
   --red: #b3362c;
+  --red-solid: #b3362c;
   --red-bg: #fdeae8;
   --border: #e6ddcf;
+  --surface-active: #f7efe9;
   --shadow: 0 2px 10px rgba(60, 45, 20, 0.08);
+}
+
+/* Dark palette. Only the resolved theme ('dark') is written to [data-theme];
+   see src/theme/theme.js. Tuned for WCAG AA on the warm dark surfaces. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #211d19;
+  --card: #2c2723;
+  --ink: #ede4d7;
+  --muted: #a99c8b;
+  --accent: #de9c8c;
+  --accent-bg: #8a3936;
+  --accent-dark: #9b4340;
+  --accent-hover: #ecbcae;
+  --gold: #d6b14a;
+  --green: #6fbf85;
+  --green-solid: #2e7d43;
+  --green-bg: #23392b;
+  --red: #e8938a;
+  --red-solid: #b3362c;
+  --red-bg: #46231f;
+  --border: #453d34;
+  --surface-active: #3a322b;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -71,6 +105,37 @@ button:focus-visible {
   }
 }
 
+/* ---------- Barre d'outils (thème, globale) ---------- */
+
+.app-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.theme-toggle {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.theme-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.theme-btn:hover {
+  border-color: var(--gold);
+}
+
+.theme-btn.active {
+  background: var(--accent-bg);
+  border-color: var(--accent-bg);
+}
+
 /* ---------- Accueil ---------- */
 
 .home-header {
@@ -102,8 +167,8 @@ button:focus-visible {
 }
 
 .lang-btn.active {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent-bg);
   color: #fff;
 }
 
@@ -260,7 +325,7 @@ button:focus-visible {
 
 .option.selected {
   border-color: var(--accent);
-  background: #f7efe9;
+  background: var(--surface-active);
 }
 
 .option.correct {
@@ -286,7 +351,7 @@ button:focus-visible {
   width: 1.8rem;
   height: 1.8rem;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--accent-bg);
   color: #fff;
   display: flex;
   align-items: center;
@@ -296,11 +361,11 @@ button:focus-visible {
 }
 
 .option.correct .option-letter {
-  background: var(--green);
+  background: var(--green-solid);
 }
 
 .option.wrong .option-letter {
-  background: var(--red);
+  background: var(--red-solid);
 }
 
 .option-text {
@@ -342,7 +407,7 @@ button:focus-visible {
 }
 
 .btn-primary {
-  background: var(--accent);
+  background: var(--accent-bg);
   color: #fff;
 }
 
@@ -362,7 +427,7 @@ button:focus-visible {
 }
 
 .btn-secondary:hover {
-  background: #f7efe9;
+  background: var(--surface-active);
 }
 
 .btn-next {
@@ -383,7 +448,7 @@ button:focus-visible {
 }
 
 .btn-link:hover {
-  color: var(--accent-dark);
+  color: var(--accent-hover);
   text-decoration: underline;
 }
 

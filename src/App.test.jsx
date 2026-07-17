@@ -155,3 +155,34 @@ describe('App - history', () => {
     expect(screen.getByText('2 / 2')).toBeInTheDocument()
   })
 })
+
+describe('App - theme', () => {
+  it('changing theme mid-quiz does not reset the revealed answer (QuestionCard is not remounted)', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /Genèse/ }))
+    expect(screen.getByText('Question mock un ?')).toBeInTheDocument()
+
+    // Reveal the answer: selection + correctness feedback + "next" button.
+    await user.click(screen.getByText('Bon').closest('button'))
+    expect(screen.getByText('Bon').closest('button')).toHaveClass('correct')
+    expect(screen.getByText(/Bonne réponse !/)).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Question suivante →' }),
+    ).toBeInTheDocument()
+
+    // ThemeToggle lives in the app toolbar, outside Quiz/QuestionCard: a
+    // theme change only flips an attribute on <html>, it must not remount
+    // the current question and wipe its local reveal state.
+    await user.click(screen.getByRole('button', { name: 'Sombre' }))
+
+    expect(document.documentElement).toHaveAttribute('data-theme', 'dark')
+    expect(screen.getByText('Question mock un ?')).toBeInTheDocument()
+    expect(screen.getByText('Bon').closest('button')).toHaveClass('correct')
+    expect(screen.getByText(/Bonne réponse !/)).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Question suivante →' }),
+    ).toBeInTheDocument()
+  })
+})

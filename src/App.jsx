@@ -4,6 +4,7 @@ import BookSelect from './components/BookSelect.jsx'
 import Quiz from './components/Quiz.jsx'
 import Results from './components/Results.jsx'
 import HistoryScreen from './components/HistoryScreen.jsx'
+import ThemeToggle from './components/ThemeToggle.jsx'
 import { pickQuestions } from './data/questions.js'
 import { saveAttempt } from './history/historyStore.js'
 
@@ -48,6 +49,9 @@ export default function App() {
 
   return (
     <div className="app">
+      <div className="app-toolbar">
+        <ThemeToggle />
+      </div>
       {screen === SCREENS.HOME && (
         <BookSelect
           onSelect={startGame}
