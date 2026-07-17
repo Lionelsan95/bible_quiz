@@ -7,10 +7,10 @@ import { pickQuestions } from './data/questions.js'
 import { saveAttempt } from './history/historyStore.js'
 
 const SCREENS = {
-  HOME: 'accueil',
+  HOME: 'home',
   QUIZ: 'quiz',
-  RESULTS: 'resultats',
-  HISTORY: 'historique',
+  RESULTS: 'results',
+  HISTORY: 'history',
 }
 
 export default function App() {
@@ -19,9 +19,9 @@ export default function App() {
   const [questions, setQuestions] = useState([])
   const [score, setScore] = useState(0)
 
-  function startGame(livre) {
-    setSelectedBook(livre)
-    setQuestions(pickQuestions(livre, 10))
+  function startGame(book) {
+    setSelectedBook(book)
+    setQuestions(pickQuestions(book, 10))
     setScore(0)
     setScreen(SCREENS.QUIZ)
   }
@@ -31,7 +31,7 @@ export default function App() {
     // Record the attempt for the history screen. Fire-and-forget: a failed save
     // must never block showing the results.
     saveAttempt({
-      livre: selectedBook,
+      book: selectedBook,
       score: finalScore,
       total: questions.length,
     }).catch(() => {})
@@ -48,7 +48,7 @@ export default function App() {
       )}
       {screen === SCREENS.QUIZ && (
         <Quiz
-          livre={selectedBook}
+          book={selectedBook}
           questions={questions}
           onFinish={finishGame}
           onQuit={() => setScreen(SCREENS.HOME)}
@@ -56,7 +56,7 @@ export default function App() {
       )}
       {screen === SCREENS.RESULTS && (
         <Results
-          livre={selectedBook}
+          book={selectedBook}
           score={score}
           total={questions.length}
           onReplay={() => startGame(selectedBook)}

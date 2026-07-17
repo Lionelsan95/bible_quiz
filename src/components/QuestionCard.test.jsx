@@ -5,30 +5,30 @@ import QuestionCard from './QuestionCard.jsx'
 
 const simpleQuestion = {
   id: 'q-simple',
-  question: 'Quelle est la capitale de la France ?',
+  text: 'Quelle est la capitale de la France ?',
   options: ['Lyon', 'Paris', 'Marseille', 'Nice'],
-  reponses_correctes: [1],
+  correctAnswers: [1],
   reference: 'Test 1:1',
 }
 
 const multiQuestion = {
   id: 'q-multi',
-  question: 'Quels fruits sont des agrumes ?',
+  text: 'Quels fruits sont des agrumes ?',
   options: ['Orange', 'Pomme', 'Citron', 'Banane'],
-  reponses_correctes: [0, 2],
+  correctAnswers: [0, 2],
   reference: 'Test 2:2',
 }
 
-describe('QuestionCard - mode simple (une seule bonne réponse)', () => {
-  it('affiche la question et les options', () => {
+describe('QuestionCard - simple mode (single correct answer)', () => {
+  it('shows the question and the options', () => {
     render(<QuestionCard question={simpleQuestion} onAnswer={() => {}} />)
-    expect(screen.getByText(simpleQuestion.question)).toBeInTheDocument()
+    expect(screen.getByText(simpleQuestion.text)).toBeInTheDocument()
     for (const opt of simpleQuestion.options) {
       expect(screen.getByText(opt)).toBeInTheDocument()
     }
   })
 
-  it('clic sur la bonne réponse : appelle onAnswer(true), applique la classe correct, annonce "Bonne réponse !"', async () => {
+  it('clicking the correct answer: calls onAnswer(true), applies the correct class, announces "Bonne réponse !"', async () => {
     const user = userEvent.setup()
     const onAnswer = vi.fn()
     render(<QuestionCard question={simpleQuestion} onAnswer={onAnswer} />)
@@ -41,7 +41,7 @@ describe('QuestionCard - mode simple (une seule bonne réponse)', () => {
     expect(screen.getByText(/Bonne réponse !/)).toBeInTheDocument()
   })
 
-  it('clic sur une mauvaise réponse : appelle onAnswer(false), classes wrong/correct/dimmed, annonce "Mauvaise réponse."', async () => {
+  it('clicking a wrong answer: calls onAnswer(false), wrong/correct/dimmed classes, announces "Mauvaise réponse."', async () => {
     const user = userEvent.setup()
     const onAnswer = vi.fn()
     render(<QuestionCard question={simpleQuestion} onAnswer={onAnswer} />)
@@ -58,7 +58,7 @@ describe('QuestionCard - mode simple (une seule bonne réponse)', () => {
     expect(screen.getByText(/Mauvaise réponse\./)).toBeInTheDocument()
   })
 
-  it('marque les boutons aria-disabled après révélation', async () => {
+  it('marks the buttons aria-disabled after reveal', async () => {
     const user = userEvent.setup()
     render(<QuestionCard question={simpleQuestion} onAnswer={() => {}} />)
 
@@ -72,7 +72,7 @@ describe('QuestionCard - mode simple (une seule bonne réponse)', () => {
     }
   })
 
-  it('ignore les clics une fois la réponse révélée', async () => {
+  it('ignores clicks once the answer is revealed', async () => {
     const user = userEvent.setup()
     const onAnswer = vi.fn()
     render(<QuestionCard question={simpleQuestion} onAnswer={onAnswer} />)
@@ -80,7 +80,7 @@ describe('QuestionCard - mode simple (une seule bonne réponse)', () => {
     await user.click(screen.getByText('Paris').closest('button'))
     expect(onAnswer).toHaveBeenCalledTimes(1)
 
-    // Un second clic sur une autre option, après révélation, ne doit rien changer.
+    // A second click on another option, after reveal, must change nothing.
     await user.click(screen.getByText('Lyon').closest('button'))
 
     expect(onAnswer).toHaveBeenCalledTimes(1)
@@ -90,8 +90,8 @@ describe('QuestionCard - mode simple (une seule bonne réponse)', () => {
   })
 })
 
-describe('QuestionCard - mode multi (plusieurs bonnes réponses)', () => {
-  it('affiche l\'indice "Choisis N réponses" et le bouton Valider désactivé au départ', () => {
+describe('QuestionCard - multi mode (several correct answers)', () => {
+  it('shows the "Choisis N réponses" hint and a disabled Valider button initially', () => {
     render(<QuestionCard question={multiQuestion} onAnswer={() => {}} />)
 
     expect(
@@ -100,7 +100,7 @@ describe('QuestionCard - mode multi (plusieurs bonnes réponses)', () => {
     expect(screen.getByRole('button', { name: 'Valider' })).toBeDisabled()
   })
 
-  it('gère la sélection/désélection avec aria-pressed et active Valider quand le compte correspond', async () => {
+  it('handles selection/deselection with aria-pressed and enables Valider when the count matches', async () => {
     const user = userEvent.setup()
     render(<QuestionCard question={multiQuestion} onAnswer={() => {}} />)
 
@@ -112,19 +112,19 @@ describe('QuestionCard - mode multi (plusieurs bonnes réponses)', () => {
 
     await user.click(orangeBtn)
     expect(orangeBtn).toHaveAttribute('aria-pressed', 'true')
-    expect(validerBtn).toBeDisabled() // une seule sélection sur 2 requises
+    expect(validerBtn).toBeDisabled() // only one of 2 required selections
 
     await user.click(citronBtn)
     expect(citronBtn).toHaveAttribute('aria-pressed', 'true')
-    expect(validerBtn).toBeEnabled() // 2 sélections == 2 bonnes réponses attendues
+    expect(validerBtn).toBeEnabled() // 2 selections == 2 expected correct answers
 
-    // Désélection : Valider redevient désactivé.
+    // Deselecting: Valider becomes disabled again.
     await user.click(orangeBtn)
     expect(orangeBtn).toHaveAttribute('aria-pressed', 'false')
     expect(validerBtn).toBeDisabled()
   })
 
-  it('valide une combinaison correcte : onAnswer(true) et classes correct sur les bons index', async () => {
+  it('validates a correct combination: onAnswer(true) and correct classes on the right indices', async () => {
     const user = userEvent.setup()
     const onAnswer = vi.fn()
     render(<QuestionCard question={multiQuestion} onAnswer={onAnswer} />)
@@ -141,7 +141,7 @@ describe('QuestionCard - mode multi (plusieurs bonnes réponses)', () => {
     expect(screen.getByText(/Bonne réponse !/)).toBeInTheDocument()
   })
 
-  it('valide une combinaison incorrecte : onAnswer(false) et classe wrong sur le mauvais choix', async () => {
+  it('validates an incorrect combination: onAnswer(false) and the wrong class on the wrong choice', async () => {
     const user = userEvent.setup()
     const onAnswer = vi.fn()
     render(<QuestionCard question={multiQuestion} onAnswer={onAnswer} />)
@@ -157,7 +157,7 @@ describe('QuestionCard - mode multi (plusieurs bonnes réponses)', () => {
     expect(screen.getByText(/Mauvaise réponse\./)).toBeInTheDocument()
   })
 
-  it('après révélation, le bouton Valider disparaît et les options sont aria-disabled', async () => {
+  it('after reveal, the Valider button disappears and options are aria-disabled', async () => {
     const user = userEvent.setup()
     render(<QuestionCard question={multiQuestion} onAnswer={() => {}} />)
 

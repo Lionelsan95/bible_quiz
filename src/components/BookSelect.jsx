@@ -18,13 +18,13 @@ export default function BookSelect({ onSelect, onShowHistory }) {
         )}
       </header>
       <div className="book-grid">
-        {books.map(({ livre, count }) => (
+        {books.map(({ book, count }) => (
           <button
-            key={livre}
+            key={book}
             className="book-card"
-            onClick={() => onSelect(livre)}
+            onClick={() => onSelect(book)}
           >
-            <span className="book-name">{livre}</span>
+            <span className="book-name">{book}</span>
             <span className="book-count">
               {count} question{count > 1 ? 's' : ''}
             </span>

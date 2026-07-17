@@ -1,34 +1,54 @@
-import quizData from '../../data/quiz_biblique.json'
+import rawData from '../../data/quiz_biblique.json'
 
-// Validation des données en dev : signale les questions dont le nombre annoncé
-// de bonnes réponses ne correspond pas à la liste des indices corrects.
+// Maps a raw French-keyed question record from the source JSON to the app's
+// internal English-keyed shape. The source JSON keeps its French keys (it is
+// off-limits for edits); this normalizer is the single boundary where they are
+// translated, so the rest of the app is English-only.
+function normalizeFr(q) {
+  return {
+    id: q.id,
+    book: q.livre,
+    text: q.question,
+    options: q.options,
+    correctAnswers: q.reponses_correctes,
+    correctCount: q.nombre_bonnes_reponses,
+    reference: q.reference,
+    difficulty: q.difficulte,
+  }
+}
+
+const questions = rawData.questions.map(normalizeFr)
+
+// Dev-only data validation: warns at module load about questions whose declared
+// correct-answer count doesn't match the indices, duplicate options, or
+// out-of-range correct indices. A test asserts the real data emits zero warnings.
 if (import.meta.env.DEV) {
-  for (const q of quizData.questions) {
-    if (q.reponses_correctes.length !== q.nombre_bonnes_reponses) {
+  for (const q of questions) {
+    if (q.correctAnswers.length !== q.correctCount) {
       console.warn(
-        `Incohérence de données pour ${q.id} : ${q.reponses_correctes.length} indice(s) correct(s) mais nombre_bonnes_reponses = ${q.nombre_bonnes_reponses}`,
+        `Data mismatch for ${q.id}: ${q.correctAnswers.length} correct index(es) but nombre_bonnes_reponses = ${q.correctCount}`,
       )
     }
     if (new Set(q.options).size !== q.options.length) {
-      console.warn(`Options en double pour ${q.id}`)
+      console.warn(`Duplicate options for ${q.id}`)
     }
-    if (q.reponses_correctes.some((i) => i < 0 || i >= q.options.length)) {
-      console.warn(`Indice de bonne réponse hors limites pour ${q.id}`)
+    if (q.correctAnswers.some((i) => i < 0 || i >= q.options.length)) {
+      console.warn(`Correct-answer index out of range for ${q.id}`)
     }
   }
 }
 
-// Liste des livres dans l'ordre du fichier (ordre biblique), avec le nombre de questions.
-// Map préserve l'ordre d'insertion, donc l'ordre biblique est conservé.
+// Books in file order (biblical order), with their question counts.
+// Map preserves insertion order, so biblical order is kept.
 export function getBooks() {
   const counts = new Map()
-  for (const q of quizData.questions) {
-    counts.set(q.livre, (counts.get(q.livre) ?? 0) + 1)
+  for (const q of questions) {
+    counts.set(q.book, (counts.get(q.book) ?? 0) + 1)
   }
-  return [...counts].map(([livre, count]) => ({ livre, count }))
+  return [...counts].map(([book, count]) => ({ book, count }))
 }
 
-// Mélange de Fisher–Yates (copie, sans muter l'original).
+// Fisher–Yates shuffle (on a copy, never mutating the original).
 function shuffle(array) {
   const copy = [...array]
   for (let i = copy.length - 1; i > 0; i--) {
@@ -38,10 +58,10 @@ function shuffle(array) {
   return copy
 }
 
-// Tire jusqu'à `n` questions au hasard dans un livre, en mélangeant aussi
-// les options de chaque question (avec remappage des bonnes réponses).
-export function pickQuestions(livre, n = 10) {
-  const pool = quizData.questions.filter((q) => q.livre === livre)
+// Draws up to `n` random questions from a book, also shuffling each question's
+// options (and remapping the correct-answer indices to the new order).
+export function pickQuestions(book, n = 10) {
+  const pool = questions.filter((q) => q.book === book)
   const selected = shuffle(pool).slice(0, Math.min(n, pool.length))
 
   return selected.map((q) => {
@@ -49,7 +69,7 @@ export function pickQuestions(livre, n = 10) {
     return {
       ...q,
       options: order.map((i) => q.options[i]),
-      reponses_correctes: q.reponses_correctes
+      correctAnswers: q.correctAnswers
         .map((orig) => order.indexOf(orig))
         .sort((a, b) => a - b),
     }

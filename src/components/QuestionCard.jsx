@@ -5,7 +5,7 @@ export default function QuestionCard({ question, onAnswer }) {
   const [revealed, setRevealed] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
 
-  const correct = question.reponses_correctes
+  const correct = question.correctAnswers
   const isMulti = correct.length > 1
 
   function submit(selection) {
@@ -43,7 +43,7 @@ export default function QuestionCard({ question, onAnswer }) {
 
   return (
     <div className="question-card">
-      <p className="question-text">{question.question}</p>
+      <p className="question-text">{question.text}</p>
       {isMulti && !revealed && (
         <p className="multi-hint">
           <span aria-hidden="true">✅</span> Choisis {correct.length} réponses
@@ -87,7 +87,7 @@ export default function QuestionCard({ question, onAnswer }) {
           Valider
         </button>
       )}
-      {/* Région live montée en permanence pour que l'annonce soit lue par les lecteurs d'écran. */}
+      {/* Live region kept permanently mounted so the result is announced by screen readers. */}
       <p className="reference" aria-live="polite">
         {revealed && (
           <>

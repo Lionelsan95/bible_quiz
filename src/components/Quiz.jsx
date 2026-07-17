@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import QuestionCard from './QuestionCard.jsx'
 
-export default function Quiz({ livre, questions, onFinish, onQuit }) {
+export default function Quiz({ book, questions, onFinish, onQuit }) {
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [answered, setAnswered] = useState(false)
@@ -10,7 +10,7 @@ export default function Quiz({ livre, questions, onFinish, onQuit }) {
   const question = questions[index]
   const isLast = index === total - 1
 
-  // Garde défensive : évite un crash si la liste de questions est vide.
+  // Defensive guard: avoid a crash if the question list is empty.
   if (!question) return null
 
   function handleAnswer(isCorrect) {
@@ -34,7 +34,7 @@ export default function Quiz({ livre, questions, onFinish, onQuit }) {
           ← Quitter
         </button>
         <div className="quiz-progress">
-          <span className="quiz-book">{livre}</span>
+          <span className="quiz-book">{book}</span>
           <span className="quiz-count">
             Question {index + 1} / {total}
           </span>

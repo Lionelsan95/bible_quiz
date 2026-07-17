@@ -12,7 +12,7 @@ function getMessage(score, total) {
 }
 
 export default function Results({
-  livre,
+  book,
   score,
   total,
   onReplay,
@@ -29,7 +29,7 @@ export default function Results({
           {emoji}
         </span>
         <h2>Quiz terminé !</h2>
-        <p className="results-book">{livre}</p>
+        <p className="results-book">{book}</p>
         <p className="results-score">
           {score} / {total}
         </p>

@@ -4,10 +4,10 @@ import userEvent from '@testing-library/user-event'
 import Results from './Results.jsx'
 
 describe('Results', () => {
-  it('affiche le score et le pourcentage', () => {
+  it('shows the score and the percentage', () => {
     render(
       <Results
-        livre="Genèse"
+        book="Genèse"
         score={7}
         total={10}
         onReplay={() => {}}
@@ -30,10 +30,10 @@ describe('Results', () => {
     [5, 10, 'Pas mal, continue comme ça !'], // ratio 0.5 >= 0.5
     [4, 10, 'Continue à lire la Bible, tu vas progresser !'], // ratio 0.4 < 0.5
     [0, 10, 'Continue à lire la Bible, tu vas progresser !'],
-  ])('affiche le bon message pour %i/%i', (score, total, expectedMessage) => {
+  ])('shows the right message for %i/%i', (score, total, expectedMessage) => {
     render(
       <Results
-        livre="Genèse"
+        book="Genèse"
         score={score}
         total={total}
         onReplay={() => {}}
@@ -44,10 +44,10 @@ describe('Results', () => {
     expect(screen.getByText(expectedMessage)).toBeInTheDocument()
   })
 
-  it('gère un total de 0 sans afficher NaN', () => {
+  it('handles a total of 0 without showing NaN', () => {
     render(
       <Results
-        livre="Genèse"
+        book="Genèse"
         score={0}
         total={0}
         onReplay={() => {}}
@@ -60,12 +60,12 @@ describe('Results', () => {
     expect(screen.queryByText(/NaN/)).not.toBeInTheDocument()
   })
 
-  it('appelle onReplay au clic sur "🔄 Rejouer ce livre"', async () => {
+  it('calls onReplay when clicking "🔄 Rejouer ce livre"', async () => {
     const user = userEvent.setup()
     const onReplay = vi.fn()
     render(
       <Results
-        livre="Genèse"
+        book="Genèse"
         score={5}
         total={10}
         onReplay={onReplay}
@@ -73,18 +73,18 @@ describe('Results', () => {
       />,
     )
 
-    // L'emoji est dans un span aria-hidden, on cible donc le bouton par son nom accessible.
+    // The emoji is in an aria-hidden span, so target the button by its accessible name.
     await user.click(screen.getByRole('button', { name: /Rejouer ce livre/ }))
 
     expect(onReplay).toHaveBeenCalledTimes(1)
   })
 
-  it('appelle onChangeBook au clic sur "📚 Choisir un autre livre"', async () => {
+  it('calls onChangeBook when clicking "📚 Choisir un autre livre"', async () => {
     const user = userEvent.setup()
     const onChangeBook = vi.fn()
     render(
       <Results
-        livre="Genèse"
+        book="Genèse"
         score={5}
         total={10}
         onReplay={() => {}}

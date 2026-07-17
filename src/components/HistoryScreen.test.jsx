@@ -12,7 +12,7 @@ vi.mock('../history/historyStore.js', () => ({
 }))
 
 describe('HistoryScreen', () => {
-  it('affiche un état de chargement puis le message vide si aucune tentative', async () => {
+  it('shows a loading state then the empty message if there are no attempts', async () => {
     listAttemptsMock.mockResolvedValue([])
     render(<HistoryScreen onBack={() => {}} />)
 
@@ -26,18 +26,18 @@ describe('HistoryScreen', () => {
     expect(screen.queryByText('Chargement…')).not.toBeInTheDocument()
   })
 
-  it('affiche un état de chargement puis la liste des tentatives', async () => {
+  it('shows a loading state then the list of attempts', async () => {
     listAttemptsMock.mockResolvedValue([
       {
         id: 'a',
-        livre: 'Genèse',
+        book: 'Genèse',
         score: 8,
         total: 10,
         completedAt: '2026-07-10T10:00:00.000Z',
       },
       {
         id: 'b',
-        livre: 'Exode',
+        book: 'Exode',
         score: 5,
         total: 10,
         completedAt: '2026-07-09T10:00:00.000Z',
@@ -53,7 +53,7 @@ describe('HistoryScreen', () => {
     expect(screen.getByText('5 / 10')).toBeInTheDocument()
   })
 
-  it('appelle onBack au clic sur "← Retour"', async () => {
+  it('calls onBack when clicking "← Retour"', async () => {
     listAttemptsMock.mockResolvedValue([])
     const user = userEvent.setup()
     const onBack = vi.fn()
@@ -64,7 +64,7 @@ describe('HistoryScreen', () => {
     expect(onBack).toHaveBeenCalledTimes(1)
   })
 
-  it('affiche le message vide si le chargement échoue', async () => {
+  it('shows the empty message if loading fails', async () => {
     listAttemptsMock.mockRejectedValue(new Error('boom'))
     render(<HistoryScreen onBack={() => {}} />)
 

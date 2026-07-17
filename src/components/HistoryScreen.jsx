@@ -55,7 +55,7 @@ export default function HistoryScreen({ onBack }) {
           {attempts.map((attempt) => (
             <li key={attempt.id} className="history-item">
               <div className="history-item-main">
-                <span className="history-book">{attempt.livre}</span>
+                <span className="history-book">{attempt.book}</span>
                 <span className="history-date">
                   {formatDate(attempt.completedAt)}
                 </span>

@@ -1,24 +1,25 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { saveAttempt, listAttempts } from './localHistory.js'
 
-const STORAGE_KEY = 'quiz-biblique.attempts.v1'
+const STORAGE_KEY = 'quiz-biblique.attempts.v2'
+const LEGACY_KEY_V1 = 'quiz-biblique.attempts.v1'
 
 beforeEach(() => {
   localStorage.clear()
 })
 
 describe('saveAttempt + listAttempts', () => {
-  it('sauvegarde une tentative puis la retrouve via listAttempts', () => {
-    saveAttempt({ livre: 'Genèse', score: 8, total: 10 })
+  it('saves an attempt and retrieves it via listAttempts', () => {
+    saveAttempt({ book: 'Genèse', score: 8, total: 10 })
 
     const attempts = listAttempts()
 
     expect(attempts.length).toBe(1)
-    expect(attempts[0]).toMatchObject({ livre: 'Genèse', score: 8, total: 10 })
+    expect(attempts[0]).toMatchObject({ book: 'Genèse', score: 8, total: 10 })
   })
 
-  it('remplit automatiquement id et completedAt', () => {
-    const record = saveAttempt({ livre: 'Genèse', score: 8, total: 10 })
+  it('automatically fills in id and completedAt', () => {
+    const record = saveAttempt({ book: 'Genèse', score: 8, total: 10 })
 
     expect(typeof record.id).toBe('string')
     expect(record.id.length).toBeGreaterThan(0)
@@ -26,56 +27,56 @@ describe('saveAttempt + listAttempts', () => {
     expect(Number.isNaN(new Date(record.completedAt).getTime())).toBe(false)
   })
 
-  it('retourne les tentatives des plus récentes aux plus anciennes', () => {
-    saveAttempt({ livre: 'Genèse', score: 1, total: 10 })
-    saveAttempt({ livre: 'Exode', score: 2, total: 10 })
-    saveAttempt({ livre: 'Lévitique', score: 3, total: 10 })
+  it('returns attempts from most recent to oldest', () => {
+    saveAttempt({ book: 'Genèse', score: 1, total: 10 })
+    saveAttempt({ book: 'Exode', score: 2, total: 10 })
+    saveAttempt({ book: 'Lévitique', score: 3, total: 10 })
 
     const attempts = listAttempts()
 
-    expect(attempts.map((a) => a.livre)).toEqual([
+    expect(attempts.map((a) => a.book)).toEqual([
       'Lévitique',
       'Exode',
       'Genèse',
     ])
   })
 
-  it('plafonne le nombre de tentatives conservées à 100', () => {
+  it('caps the number of retained attempts at 100', () => {
     for (let i = 0; i < 105; i += 1) {
-      saveAttempt({ livre: `Livre ${i}`, score: 1, total: 10 })
+      saveAttempt({ book: `Livre ${i}`, score: 1, total: 10 })
     }
 
     const attempts = listAttempts()
 
     expect(attempts.length).toBe(100)
-    // La plus récente (dernière sauvegardée) reste en tête.
-    expect(attempts[0].livre).toBe('Livre 104')
-    // Les plus anciennes ont été évincées par le plafond.
-    expect(attempts.some((a) => a.livre === 'Livre 0')).toBe(false)
+    // The most recent (last saved) stays at the front.
+    expect(attempts[0].book).toBe('Livre 104')
+    // The oldest have been evicted by the cap.
+    expect(attempts.some((a) => a.book === 'Livre 0')).toBe(false)
   })
 })
 
-describe('listAttempts - tolérance aux données corrompues', () => {
-  it('retourne un tableau vide si le JSON stocké est corrompu', () => {
+describe('listAttempts - tolerance to corrupt data', () => {
+  it('returns an empty array if the stored JSON is corrupt', () => {
     localStorage.setItem(STORAGE_KEY, 'not valid json {{{')
 
     expect(listAttempts()).toEqual([])
   })
 
-  it("retourne un tableau vide si la valeur stockée n'est pas un tableau", () => {
+  it('returns an empty array if the stored value is not an array', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ not: 'an array' }))
 
     expect(listAttempts()).toEqual([])
   })
 
-  it('filtre les éléments null ou aux champs manquants/mal typés', () => {
+  it('filters out null entries or entries with missing/mistyped fields', () => {
     const stored = [
-      { id: 'a', livre: 'Genèse', score: 5, total: 10 },
+      { id: 'a', book: 'Genèse', score: 5, total: 10 },
       null,
-      { id: 'b', livre: 'Exode' }, // score/total manquants
-      { id: 'c', livre: 'Lévitique', score: '5', total: 10 }, // score mal typé
-      { livre: 'Nombres', score: 3, total: 10 }, // id manquant
-      { id: 'd', livre: 'Deutéronome', score: 7, total: 10 },
+      { id: 'b', book: 'Exode' }, // missing score/total
+      { id: 'c', book: 'Lévitique', score: '5', total: 10 }, // mistyped score
+      { book: 'Nombres', score: 3, total: 10 }, // missing id
+      { id: 'd', book: 'Deutéronome', score: 7, total: 10 },
     ]
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
 
@@ -85,8 +86,8 @@ describe('listAttempts - tolérance aux données corrompues', () => {
   })
 })
 
-describe('saveAttempt - résilience au stockage', () => {
-  it('avale les erreurs de stockage sans planter (quota dépassé / mode privé)', () => {
+describe('saveAttempt - storage resilience', () => {
+  it('swallows storage errors without crashing (quota exceeded / private mode)', () => {
     const setItemSpy = vi
       .spyOn(Storage.prototype, 'setItem')
       .mockImplementation(() => {
@@ -94,23 +95,121 @@ describe('saveAttempt - résilience au stockage', () => {
       })
 
     expect(() =>
-      saveAttempt({ livre: 'Genèse', score: 5, total: 10 }),
+      saveAttempt({ book: 'Genèse', score: 5, total: 10 }),
     ).not.toThrow()
 
     setItemSpy.mockRestore()
   })
 
-  it("retourne quand même l'enregistrement construit même si le stockage échoue", () => {
+  it('still returns the built record even when storage fails', () => {
     const setItemSpy = vi
       .spyOn(Storage.prototype, 'setItem')
       .mockImplementation(() => {
         throw new Error('QuotaExceededError')
       })
 
-    const record = saveAttempt({ livre: 'Genèse', score: 5, total: 10 })
+    const record = saveAttempt({ book: 'Genèse', score: 5, total: 10 })
 
-    expect(record).toMatchObject({ livre: 'Genèse', score: 5, total: 10 })
+    expect(record).toMatchObject({ book: 'Genèse', score: 5, total: 10 })
 
     setItemSpy.mockRestore()
+  })
+})
+
+describe('v1 -> v2 migration', () => {
+  it('migrates valid v1 records (with `livre`) to v2, mapped to `book`, when v2 is absent', () => {
+    const v1Data = [
+      {
+        id: 'a',
+        livre: 'Genèse',
+        score: 8,
+        total: 10,
+        completedAt: '2026-01-01T00:00:00.000Z',
+      },
+      {
+        id: 'b',
+        livre: 'Exode',
+        score: 5,
+        total: 10,
+        completedAt: '2026-01-02T00:00:00.000Z',
+      },
+    ]
+    localStorage.setItem(LEGACY_KEY_V1, JSON.stringify(v1Data))
+
+    const attempts = listAttempts()
+
+    expect(attempts).toEqual([
+      {
+        id: 'a',
+        book: 'Genèse',
+        score: 8,
+        total: 10,
+        completedAt: '2026-01-01T00:00:00.000Z',
+      },
+      {
+        id: 'b',
+        book: 'Exode',
+        score: 5,
+        total: 10,
+        completedAt: '2026-01-02T00:00:00.000Z',
+      },
+    ])
+    // The migration persisted the mapped data under the v2 key.
+    expect(localStorage.getItem(STORAGE_KEY)).not.toBeNull()
+  })
+
+  it('returns an empty array without throwing when v1 data is corrupt/non-array', () => {
+    localStorage.setItem(LEGACY_KEY_V1, 'not valid json {{{')
+
+    expect(() => listAttempts()).not.toThrow()
+    expect(listAttempts()).toEqual([])
+
+    localStorage.setItem(LEGACY_KEY_V1, JSON.stringify({ not: 'an array' }))
+
+    expect(() => listAttempts()).not.toThrow()
+    expect(listAttempts()).toEqual([])
+  })
+
+  it('marks migration done (writes v2) even when v1 has no valid records', () => {
+    // v1 present but every record is invalid -> migrated result is empty, yet v2
+    // must still be written so subsequent reads stop re-parsing v1.
+    localStorage.setItem(
+      LEGACY_KEY_V1,
+      JSON.stringify([{ id: 'x' }, null, 'nope']),
+    )
+
+    expect(listAttempts()).toEqual([])
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('[]')
+  })
+
+  it('ignores v1 data when v2 is already present (no merge)', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([
+        {
+          id: 'v2-a',
+          book: 'Nombres',
+          score: 3,
+          total: 10,
+          completedAt: '2026-02-01T00:00:00.000Z',
+        },
+      ]),
+    )
+    localStorage.setItem(
+      LEGACY_KEY_V1,
+      JSON.stringify([
+        {
+          id: 'v1-a',
+          livre: 'Genèse',
+          score: 8,
+          total: 10,
+          completedAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]),
+    )
+
+    const attempts = listAttempts()
+
+    expect(attempts.map((a) => a.id)).toEqual(['v2-a'])
   })
 })

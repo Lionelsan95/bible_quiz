@@ -3,34 +3,34 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App.jsx'
 
-// pickQuestions() utilise Math.random (mélange) : on mocke le module de données
-// pour obtenir un jeu de questions déterministe dans ce test d'intégration.
+// pickQuestions() uses Math.random (shuffle): the data module is mocked to
+// get a deterministic question set for this integration test.
 const { getBooksMock, pickQuestionsMock } = vi.hoisted(() => {
   const mockQuestions = [
     {
       id: 'mock_1',
-      livre: 'Genèse',
-      question: 'Question mock un ?',
+      book: 'Genèse',
+      text: 'Question mock un ?',
       options: ['Bon', 'Mauvais'],
-      reponses_correctes: [0],
+      correctAnswers: [0],
       reference: 'Mock 1:1',
     },
     {
       id: 'mock_2',
-      livre: 'Genèse',
-      question: 'Question mock deux ?',
+      book: 'Genèse',
+      text: 'Question mock deux ?',
       options: ['Bon', 'Mauvais'],
-      reponses_correctes: [0],
+      correctAnswers: [0],
       reference: 'Mock 2:2',
     },
   ]
 
   return {
     getBooksMock: vi.fn(() => [
-      { livre: 'Genèse', count: 40 },
-      { livre: 'Exode', count: 35 },
+      { book: 'Genèse', count: 40 },
+      { book: 'Exode', count: 35 },
     ]),
-    pickQuestionsMock: vi.fn((livre, n) => mockQuestions.slice(0, n)),
+    pickQuestionsMock: vi.fn((book, n) => mockQuestions.slice(0, n)),
   }
 })
 
@@ -44,19 +44,19 @@ async function playThroughQuiz(user) {
   await user.click(screen.getByText('Bon').closest('button'))
   await user.click(screen.getByText('Question suivante →'))
 
-  // Question 2 (dernière)
+  // Question 2 (last)
   await user.click(screen.getByText('Bon').closest('button'))
   await user.click(screen.getByText('Voir mon score 🎉'))
 }
 
-// L'historique s'appuie sur le vrai localStorage de jsdom (non mocké dans ce
-// fichier) : on le vide avant chaque test pour rester isolé.
+// History relies on jsdom's real localStorage (not mocked in this file): it
+// is cleared before each test to stay isolated.
 beforeEach(() => {
   localStorage.clear()
 })
 
-describe('App - flux complet', () => {
-  it("affiche l'accueil avec la liste des livres au démarrage", () => {
+describe('App - full flow', () => {
+  it('shows the home screen with the book list on startup', () => {
     render(<App />)
 
     expect(screen.getByText('📖 Quiz Biblique')).toBeInTheDocument()
@@ -64,24 +64,24 @@ describe('App - flux complet', () => {
     expect(screen.getByRole('button', { name: /Exode/ })).toBeInTheDocument()
   })
 
-  it("sélection d'un livre → quiz → résultats → rejouer le même livre", async () => {
+  it('selecting a book → quiz → results → replay the same book', async () => {
     const user = userEvent.setup()
     render(<App />)
 
     await user.click(screen.getByRole('button', { name: /Genèse/ }))
 
-    // Écran quiz
+    // Quiz screen
     expect(screen.getByText('Question 1 / 2')).toBeInTheDocument()
     expect(screen.getByText('Question mock un ?')).toBeInTheDocument()
 
     await playThroughQuiz(user)
 
-    // Écran résultats
+    // Results screen
     expect(screen.getByText('Quiz terminé !')).toBeInTheDocument()
     expect(screen.getByText('2 / 2')).toBeInTheDocument()
     expect(screen.getByText('100% de bonnes réponses')).toBeInTheDocument()
 
-    // Rejouer ce livre relance un quiz frais sur le même livre.
+    // Replaying this book starts a fresh quiz on the same book.
     await user.click(screen.getByRole('button', { name: /Rejouer ce livre/ }))
 
     expect(screen.getByText('Question 1 / 2')).toBeInTheDocument()
@@ -89,7 +89,7 @@ describe('App - flux complet', () => {
     expect(pickQuestionsMock).toHaveBeenCalledWith('Genèse', 10)
   })
 
-  it("sélection d'un livre → quiz → résultats → changer de livre revient à l'accueil", async () => {
+  it('selecting a book → quiz → results → change book returns to home', async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -106,7 +106,7 @@ describe('App - flux complet', () => {
     expect(screen.getByRole('button', { name: /Genèse/ })).toBeInTheDocument()
   })
 
-  it("quitter le quiz en cours de route revient à l'accueil", async () => {
+  it('quitting the quiz mid-way returns to home', async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -119,8 +119,8 @@ describe('App - flux complet', () => {
   })
 })
 
-describe('App - historique', () => {
-  it("depuis l'accueil, \"Mon historique\" affiche l'écran d'historique", async () => {
+describe('App - history', () => {
+  it('from home, "Mon historique" shows the history screen', async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -132,7 +132,7 @@ describe('App - historique', () => {
     )
   })
 
-  it("après une partie terminée, l'historique affiche la tentative tout juste jouée", async () => {
+  it('after a finished game, history shows the attempt just played', async () => {
     const user = userEvent.setup()
     render(<App />)
 

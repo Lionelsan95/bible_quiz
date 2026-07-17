@@ -6,18 +6,18 @@ import Quiz from './Quiz.jsx'
 const questions = [
   {
     id: 'q1',
-    livre: 'TestLivre',
-    question: 'Question un ?',
+    book: 'TestLivre',
+    text: 'Question un ?',
     options: ['Bon', 'Mauvais'],
-    reponses_correctes: [0],
+    correctAnswers: [0],
     reference: 'Test 1:1',
   },
   {
     id: 'q2',
-    livre: 'TestLivre',
-    question: 'Question deux ?',
+    book: 'TestLivre',
+    text: 'Question deux ?',
     options: ['Bon', 'Mauvais'],
-    reponses_correctes: [0],
+    correctAnswers: [0],
     reference: 'Test 2:2',
   },
 ]
@@ -28,10 +28,10 @@ function answer(user, correct) {
 }
 
 describe('Quiz', () => {
-  it('affiche la progression Question X / Y avec un role progressbar', () => {
+  it('shows the Question X / Y progress with a progressbar role', () => {
     render(
       <Quiz
-        livre="TestLivre"
+        book="TestLivre"
         questions={questions}
         onFinish={() => {}}
         onQuit={() => {}}
@@ -45,11 +45,11 @@ describe('Quiz', () => {
     expect(progressbar).toHaveAttribute('aria-valuemax', '2')
   })
 
-  it("n'affiche pas de bouton suivant avant d'avoir répondu, puis l'affiche après", async () => {
+  it('hides the next button before answering, then shows it after', async () => {
     const user = userEvent.setup()
     render(
       <Quiz
-        livre="TestLivre"
+        book="TestLivre"
         questions={questions}
         onFinish={() => {}}
         onQuit={() => {}}
@@ -63,11 +63,11 @@ describe('Quiz', () => {
     expect(screen.getByText('Question suivante →')).toBeInTheDocument()
   })
 
-  it('passe à la question suivante et met à jour la progression', async () => {
+  it('moves to the next question and updates progress', async () => {
     const user = userEvent.setup()
     render(
       <Quiz
-        livre="TestLivre"
+        book="TestLivre"
         questions={questions}
         onFinish={() => {}}
         onQuit={() => {}}
@@ -85,37 +85,37 @@ describe('Quiz', () => {
     )
   })
 
-  it('sur la dernière question, propose "Voir mon score 🎉" et appelle onFinish avec le score final', async () => {
+  it('on the last question, offers "Voir mon score 🎉" and calls onFinish with the final score', async () => {
     const user = userEvent.setup()
     const onFinish = vi.fn()
     render(
       <Quiz
-        livre="TestLivre"
+        book="TestLivre"
         questions={questions}
         onFinish={onFinish}
         onQuit={() => {}}
       />,
     )
 
-    await answer(user, true) // question 1 : correcte
+    await answer(user, true) // question 1: correct
     await user.click(screen.getByText('Question suivante →'))
 
-    await answer(user, false) // question 2 : incorrecte
+    await answer(user, false) // question 2: incorrect
     const finishBtn = screen.getByText('Voir mon score 🎉')
     expect(finishBtn).toBeInTheDocument()
 
     await user.click(finishBtn)
 
     expect(onFinish).toHaveBeenCalledTimes(1)
-    expect(onFinish).toHaveBeenCalledWith(1) // 1 bonne réponse sur 2
+    expect(onFinish).toHaveBeenCalledWith(1) // 1 correct answer out of 2
   })
 
-  it('appelle onQuit quand on clique sur "← Quitter"', async () => {
+  it('calls onQuit when clicking "← Quitter"', async () => {
     const user = userEvent.setup()
     const onQuit = vi.fn()
     render(
       <Quiz
-        livre="TestLivre"
+        book="TestLivre"
         questions={questions}
         onFinish={() => {}}
         onQuit={onQuit}
@@ -127,10 +127,10 @@ describe('Quiz', () => {
     expect(onQuit).toHaveBeenCalledTimes(1)
   })
 
-  it('retourne null sans planter si la liste de questions est vide', () => {
+  it('returns null without crashing if the question list is empty', () => {
     const { container } = render(
       <Quiz
-        livre="TestLivre"
+        book="TestLivre"
         questions={[]}
         onFinish={() => {}}
         onQuit={() => {}}
