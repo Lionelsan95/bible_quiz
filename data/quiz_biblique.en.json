@@ -1,0 +1,56 @@
+{
+  "titre": "Bible Quiz - Questions by book (English)",
+  "description": "English question bank. SAMPLE ONLY — Genesis questions to prove the locale-aware loader end to end. The full machine translation of all books is a separate, review-gated deliverable.",
+  "questions": [
+    {
+      "id": "gen_001",
+      "book": "Genesis",
+      "text": "In how many days does God create the world according to Genesis 1?",
+      "options": ["6 days", "7 days", "3 days", "40 days"],
+      "correctAnswers": [0],
+      "correctCount": 1,
+      "reference": "Genesis 1",
+      "difficulty": "easy"
+    },
+    {
+      "id": "gen_002",
+      "book": "Genesis",
+      "text": "On the seventh day, what does God do?",
+      "options": [
+        "He creates man",
+        "He rests",
+        "He creates light",
+        "He destroys the world"
+      ],
+      "correctAnswers": [1],
+      "correctCount": 1,
+      "reference": "Genesis 2:2",
+      "difficulty": "easy"
+    },
+    {
+      "id": "gen_003",
+      "book": "Genesis",
+      "text": "What is the name of the first man created by God?",
+      "options": ["Abel", "Cain", "Adam", "Seth"],
+      "correctAnswers": [2],
+      "correctCount": 1,
+      "reference": "Genesis 2:19-20",
+      "difficulty": "easy"
+    },
+    {
+      "id": "gen_004",
+      "book": "Genesis",
+      "text": "From what does God form the first woman?",
+      "options": [
+        "From dust",
+        "From one of Adam's ribs",
+        "From a rib and dust",
+        "From a leaf"
+      ],
+      "correctAnswers": [1],
+      "correctCount": 1,
+      "reference": "Genesis 2:22",
+      "difficulty": "easy"
+    }
+  ]
+}

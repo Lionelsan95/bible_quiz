@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import BookSelect from './components/BookSelect.jsx'
 import Quiz from './components/Quiz.jsx'
 import Results from './components/Results.jsx'
@@ -14,14 +15,21 @@ const SCREENS = {
 }
 
 export default function App() {
+  const { i18n } = useTranslation()
   const [screen, setScreen] = useState(SCREENS.HOME)
   const [selectedBook, setSelectedBook] = useState(null)
   const [questions, setQuestions] = useState([])
   const [score, setScore] = useState(0)
 
   function startGame(book) {
+    const picked = pickQuestions(book, 10, i18n.language)
+    // Guard: a book with no questions in the active language does nothing rather
+    // than entering a blank quiz (the caller's screen is left as-is). The
+    // home-only LanguageToggle makes this unreachable in practice; it also
+    // defends the replay path from RESULTS.
+    if (picked.length === 0) return
     setSelectedBook(book)
-    setQuestions(pickQuestions(book, 10))
+    setQuestions(picked)
     setScore(0)
     setScreen(SCREENS.QUIZ)
   }

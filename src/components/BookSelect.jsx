@@ -1,11 +1,12 @@
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getBooks } from '../data/questions.js'
 import LanguageToggle from './LanguageToggle.jsx'
 
-const books = getBooks()
-
 export default function BookSelect({ onSelect, onShowHistory }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  // The book list is language-specific; recompute only when the language changes.
+  const books = useMemo(() => getBooks(i18n.language), [i18n.language])
 
   return (
     <div className="screen">

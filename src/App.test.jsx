@@ -89,7 +89,7 @@ describe('App - full flow', () => {
 
     expect(screen.getByText('Question 1 / 2')).toBeInTheDocument()
     expect(screen.getByText('Question mock un ?')).toBeInTheDocument()
-    expect(pickQuestionsMock).toHaveBeenCalledWith('Genèse', 10)
+    expect(pickQuestionsMock).toHaveBeenCalledWith('Genèse', 10, 'fr')
   })
 
   it('selecting a book → quiz → results → change book returns to home', async () => {

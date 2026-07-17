@@ -41,6 +41,15 @@ describe('getBooks', () => {
     const genese = books.find((b) => b.book === 'Genèse')
     expect(genese).toEqual({ book: 'Genèse', count: 40 })
   })
+
+  it('defaults to French when no language is given', () => {
+    expect(getBooks()).toEqual(getBooks('fr'))
+  })
+
+  it('returns the English bank (sample: Genesis only) for lang="en"', () => {
+    const books = getBooks('en')
+    expect(books).toEqual([{ book: 'Genesis', count: 4 }])
+  })
 })
 
 describe('pickQuestions', () => {
@@ -117,6 +126,31 @@ describe('pickQuestions', () => {
     const result = pickQuestions('Genèse', 0)
     expect(result).toEqual([])
   })
+
+  it('defaults to French when no language is given', () => {
+    const result = pickQuestions('Genèse', 5)
+    for (const q of result) {
+      expect(q.book).toBe('Genèse')
+    }
+  })
+
+  it('returns English questions for lang="en"', () => {
+    const result = pickQuestions('Genesis', 10, 'en')
+    expect(result.length).toBe(4)
+    for (const q of result) {
+      expect(q.book).toBe('Genesis')
+      expect(typeof q.text).toBe('string')
+      expect(q.text.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('falls back to French for an unknown/unsupported language', () => {
+    const result = pickQuestions('Genèse', 40, 'de')
+    expect(result.length).toBe(40)
+    for (const q of result) {
+      expect(q.book).toBe('Genèse')
+    }
+  })
 })
 
 describe('data validation on module load (DEV)', () => {
@@ -124,7 +158,7 @@ describe('data validation on module load (DEV)', () => {
     vi.resetModules()
   })
 
-  it('emits no warnings because the real data is valid', async () => {
+  it('emits no warnings because the real data is valid (both banks)', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     await import('./questions.js')

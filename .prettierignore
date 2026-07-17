@@ -1,6 +1,7 @@
 dist
 node_modules
-data/quiz_biblique.json
+# Quiz content (fr + en banks) — reviewed/frozen data, not code to reformat.
+data/quiz_biblique*.json
 
 # Docs are hand-authored; leave markdown formatting to the author.
 *.md
