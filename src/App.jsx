@@ -19,17 +19,20 @@ export default function App() {
   const { i18n } = useTranslation()
   const [screen, setScreen] = useState(SCREENS.HOME)
   const [selectedBook, setSelectedBook] = useState(null)
+  const [selectedLevel, setSelectedLevel] = useState(null)
   const [questions, setQuestions] = useState([])
   const [score, setScore] = useState(0)
 
-  function startGame(book) {
-    const picked = pickQuestions(book, 10, i18n.language)
-    // Guard: a book with no questions in the active language does nothing rather
-    // than entering a blank quiz (the caller's screen is left as-is). The
-    // home-only LanguageToggle makes this unreachable in practice; it also
-    // defends the replay path from RESULTS.
+  function startGame(book, level) {
+    const picked = pickQuestions(book, 10, { lang: i18n.language, level })
+    // Guard: a book/level combo with no questions in the active language does
+    // nothing rather than entering a blank quiz (the caller's screen is left
+    // as-is). The home-only LanguageToggle and BookSelect's own disabling of
+    // 0-count levels make this unreachable in practice; it also defends the
+    // replay path from RESULTS.
     if (picked.length === 0) return
     setSelectedBook(book)
+    setSelectedLevel(level)
     setQuestions(picked)
     setScore(0)
     setScreen(SCREENS.QUIZ)
@@ -41,6 +44,7 @@ export default function App() {
     // must never block showing the results.
     saveAttempt({
       book: selectedBook,
+      level: selectedLevel,
       score: finalScore,
       total: questions.length,
     }).catch(() => {})
@@ -71,7 +75,7 @@ export default function App() {
           book={selectedBook}
           score={score}
           total={questions.length}
-          onReplay={() => startGame(selectedBook)}
+          onReplay={() => startGame(selectedBook, selectedLevel)}
           onChangeBook={() => setScreen(SCREENS.HOME)}
           onShowHistory={() => setScreen(SCREENS.HISTORY)}
         />

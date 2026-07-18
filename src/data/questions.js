@@ -1,5 +1,10 @@
 import frRaw from '../../data/quiz_biblique.json'
 import enRaw from '../../data/quiz_biblique.en.json'
+import {
+  LEVELS,
+  DIFFICULTY_FR_TO_LEVEL,
+  DIFFICULTY_EN_TO_LEVEL,
+} from './difficultyLevels.js'
 
 export const DEFAULT_LANG = 'fr'
 
@@ -18,7 +23,10 @@ function normalizeFr(q) {
     correctAnswers: [...q.reponses_correctes],
     correctCount: q.nombre_bonnes_reponses,
     reference: q.reference,
-    difficulty: q.difficulte,
+    // Falls back to the raw value if unmapped, rather than to undefined, so
+    // the dev validation below can name the bad value instead of it silently
+    // disappearing.
+    difficulty: DIFFICULTY_FR_TO_LEVEL[q.difficulte] ?? q.difficulte,
   }
 }
 
@@ -34,7 +42,7 @@ function normalizeEn(q) {
     correctAnswers: [...q.correct_answers],
     correctCount: q.number_of_correct_answers,
     reference: q.reference,
-    difficulty: q.difficulty,
+    difficulty: DIFFICULTY_EN_TO_LEVEL[q.difficulty] ?? q.difficulty,
   }
 }
 
@@ -66,18 +74,41 @@ if (import.meta.env.DEV) {
       if (q.correctAnswers.some((i) => i < 0 || i >= q.options.length)) {
         console.warn(`[${lang}] Correct-answer index out of range for ${q.id}`)
       }
+      if (!LEVELS.includes(q.difficulty)) {
+        console.warn(`[${lang}] Unknown difficulty "${q.difficulty}" for ${q.id}`)
+      }
     }
   }
 }
 
-// Books in file order (biblical order), with their question counts, for the
-// given language. Map preserves insertion order, so biblical order is kept.
+// Books in file order (biblical order), with their question counts and a
+// per-level breakdown, for the given language. Map preserves insertion order,
+// so biblical order is kept. The `levels` breakdown lets the UI know, per
+// book, which levels have questions at all — computed in the same pass so
+// there's no per-book follow-up call.
 export function getBooks(lang = DEFAULT_LANG) {
-  const counts = new Map()
+  const perBook = new Map()
   for (const q of bank(lang)) {
-    counts.set(q.book, (counts.get(q.book) ?? 0) + 1)
+    if (!perBook.has(q.book)) {
+      perBook.set(q.book, {
+        count: 0,
+        levelCounts: new Map(LEVELS.map((level) => [level, 0])),
+      })
+    }
+    const entry = perBook.get(q.book)
+    entry.count += 1
+    if (entry.levelCounts.has(q.difficulty)) {
+      entry.levelCounts.set(
+        q.difficulty,
+        entry.levelCounts.get(q.difficulty) + 1,
+      )
+    }
   }
-  return [...counts].map(([book, count]) => ({ book, count }))
+  return [...perBook].map(([book, { count, levelCounts }]) => ({
+    book,
+    count,
+    levels: LEVELS.map((level) => ({ level, count: levelCounts.get(level) })),
+  }))
 }
 
 // Fisher–Yates shuffle (on a copy, never mutating the original).
@@ -90,11 +121,18 @@ function shuffle(array) {
   return copy
 }
 
-// Draws up to `n` random questions from a book (in the given language), also
-// shuffling each question's options and remapping the correct-answer indices to
-// the new order (sorted ascending).
-export function pickQuestions(book, n = 10, lang = DEFAULT_LANG) {
-  const pool = bank(lang).filter((q) => q.book === book)
+// Draws up to `n` random questions from a book (in the given language),
+// optionally restricted to one canonical difficulty level, also shuffling each
+// question's options and remapping the correct-answer indices to the new order
+// (sorted ascending). `lang` and `level` are grouped in an options object
+// (rather than two adjacent positional params) since both are short strings
+// from disjoint but similarly-shaped vocabularies ('fr'/'en' vs
+// 'easy'/'medium'/'hard') — a positional swap would silently return an empty
+// array rather than error.
+export function pickQuestions(book, n = 10, { lang = DEFAULT_LANG, level = null } = {}) {
+  const pool = bank(lang).filter(
+    (q) => q.book === book && (level === null || q.difficulty === level),
+  )
   const selected = shuffle(pool).slice(0, Math.min(n, pool.length))
 
   return selected.map((q) => {

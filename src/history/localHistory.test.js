@@ -18,6 +18,28 @@ describe('saveAttempt + listAttempts', () => {
     expect(attempts[0]).toMatchObject({ book: 'Genèse', score: 8, total: 10 })
   })
 
+  it('round-trips an optional level through listAttempts', () => {
+    saveAttempt({ book: 'Genèse', level: 'easy', score: 8, total: 10 })
+
+    const attempts = listAttempts()
+
+    expect(attempts[0]).toMatchObject({ book: 'Genèse', level: 'easy' })
+  })
+
+  it('an attempt saved without a level still validates and loads (backward compatibility)', () => {
+    saveAttempt({ book: 'Genèse', score: 8, total: 10 })
+
+    const attempts = listAttempts()
+
+    expect(attempts.length).toBe(1)
+    expect(attempts[0]).toMatchObject({
+      book: 'Genèse',
+      level: null,
+      score: 8,
+      total: 10,
+    })
+  })
+
   it('automatically fills in id and completedAt', () => {
     const record = saveAttempt({ book: 'Genèse', score: 8, total: 10 })
 

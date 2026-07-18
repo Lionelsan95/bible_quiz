@@ -223,6 +223,48 @@ button:focus-visible {
   color: var(--muted);
 }
 
+.level-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 20rem;
+  margin: 0 auto 1.25rem;
+}
+
+.level-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  box-shadow: var(--shadow);
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.level-btn:not([aria-disabled='true']):hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+}
+
+.level-btn[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.level-name {
+  font-weight: bold;
+  color: var(--accent);
+}
+
+.level-count {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
 /* ---------- Quiz ---------- */
 
 .quiz-header {
@@ -553,6 +595,11 @@ button:focus-visible {
   font-weight: bold;
   color: var(--accent);
   font-size: 1.05rem;
+}
+
+.history-level {
+  color: var(--muted);
+  font-size: 0.85rem;
 }
 
 .history-date {

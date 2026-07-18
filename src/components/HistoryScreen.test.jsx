@@ -53,6 +53,32 @@ describe('HistoryScreen', () => {
     expect(screen.getByText('5 / 10')).toBeInTheDocument()
   })
 
+  it('shows a level badge for attempts that have one, and none for attempts without', async () => {
+    listAttemptsMock.mockResolvedValue([
+      {
+        id: 'a',
+        book: 'Genèse',
+        level: 'easy',
+        score: 8,
+        total: 10,
+        completedAt: '2026-07-10T10:00:00.000Z',
+      },
+      {
+        id: 'b',
+        book: 'Exode',
+        score: 5,
+        total: 10,
+        completedAt: '2026-07-09T10:00:00.000Z',
+      },
+    ])
+    render(<HistoryScreen onBack={() => {}} />)
+
+    expect(await screen.findByText('Facile')).toBeInTheDocument()
+    // The level-less attempt renders no badge at all (not an empty one).
+    expect(screen.queryByText('Moyen')).not.toBeInTheDocument()
+    expect(screen.queryByText('Difficile')).not.toBeInTheDocument()
+  })
+
   it('calls onBack when clicking "← Retour"', async () => {
     listAttemptsMock.mockResolvedValue([])
     const user = userEvent.setup()

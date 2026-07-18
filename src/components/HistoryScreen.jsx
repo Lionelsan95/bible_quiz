@@ -61,6 +61,11 @@ export default function HistoryScreen({ onBack }) {
             <li key={attempt.id} className="history-item">
               <div className="history-item-main">
                 <span className="history-book">{attempt.book}</span>
+                {attempt.level && (
+                  <span className="history-level">
+                    {t(`level.${attempt.level}`)}
+                  </span>
+                )}
                 <span className="history-date">
                   {formatDate(attempt.completedAt)}
                 </span>

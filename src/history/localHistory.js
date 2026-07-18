@@ -103,6 +103,10 @@ export function saveAttempt(attempt) {
   const record = {
     id: attempt.id ?? newId(),
     book: attempt.book,
+    // Optional: records saved before difficulty levels existed have none, and
+    // isValidAttempt below does not require it, so old stored records keep
+    // validating after this field was added.
+    level: attempt.level ?? null,
     score: attempt.score,
     total: attempt.total,
     completedAt: attempt.completedAt ?? new Date().toISOString(),

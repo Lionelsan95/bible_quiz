@@ -27,8 +27,24 @@ const { getBooksMock, pickQuestionsMock } = vi.hoisted(() => {
 
   return {
     getBooksMock: vi.fn(() => [
-      { book: 'Genèse', count: 40 },
-      { book: 'Exode', count: 35 },
+      {
+        book: 'Genèse',
+        count: 40,
+        levels: [
+          { level: 'easy', count: 2 },
+          { level: 'medium', count: 0 },
+          { level: 'hard', count: 0 },
+        ],
+      },
+      {
+        book: 'Exode',
+        count: 35,
+        levels: [
+          { level: 'easy', count: 1 },
+          { level: 'medium', count: 0 },
+          { level: 'hard', count: 0 },
+        ],
+      },
     ]),
     pickQuestionsMock: vi.fn((book, n) => mockQuestions.slice(0, n)),
   }
@@ -38,6 +54,13 @@ vi.mock('./data/questions.js', () => ({
   getBooks: getBooksMock,
   pickQuestions: pickQuestionsMock,
 }))
+
+// Clicks a book card, then the "Facile" (easy) level button that follows it —
+// the only enabled level for both mocked books above.
+async function selectBook(user, bookName) {
+  await user.click(screen.getByRole('button', { name: new RegExp(bookName) }))
+  await user.click(screen.getByRole('button', { name: /^Facile/ }))
+}
 
 async function playThroughQuiz(user) {
   // Question 1
@@ -67,11 +90,11 @@ describe('App - full flow', () => {
     expect(screen.getByRole('button', { name: /Exode/ })).toBeInTheDocument()
   })
 
-  it('selecting a book → quiz → results → replay the same book', async () => {
+  it('selecting a book → level → quiz → results → replay preserves book and level', async () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: /Genèse/ }))
+    await selectBook(user, 'Genèse')
 
     // Quiz screen
     expect(screen.getByText('Question 1 / 2')).toBeInTheDocument()
@@ -84,19 +107,27 @@ describe('App - full flow', () => {
     expect(screen.getByText('2 / 2')).toBeInTheDocument()
     expect(screen.getByText('100% de bonnes réponses')).toBeInTheDocument()
 
-    // Replaying this book starts a fresh quiz on the same book.
+    // Replaying this book starts a fresh quiz on the same book AND level,
+    // without going back through BookSelect's level panel.
     await user.click(screen.getByRole('button', { name: /Rejouer ce livre/ }))
 
     expect(screen.getByText('Question 1 / 2')).toBeInTheDocument()
     expect(screen.getByText('Question mock un ?')).toBeInTheDocument()
-    expect(pickQuestionsMock).toHaveBeenCalledWith('Genèse', 10, 'fr')
+    expect(pickQuestionsMock).toHaveBeenNthCalledWith(1, 'Genèse', 10, {
+      lang: 'fr',
+      level: 'easy',
+    })
+    expect(pickQuestionsMock).toHaveBeenNthCalledWith(2, 'Genèse', 10, {
+      lang: 'fr',
+      level: 'easy',
+    })
   })
 
-  it('selecting a book → quiz → results → change book returns to home', async () => {
+  it('selecting a book → level → quiz → results → change book returns to home', async () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: /Genèse/ }))
+    await selectBook(user, 'Genèse')
     await playThroughQuiz(user)
 
     expect(screen.getByText('Quiz terminé !')).toBeInTheDocument()
@@ -115,7 +146,7 @@ describe('App - full flow', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: /Genèse/ }))
+    await selectBook(user, 'Genèse')
     expect(screen.getByText('Question 1 / 2')).toBeInTheDocument()
 
     await user.click(screen.getByText('← Quitter'))
@@ -123,6 +154,23 @@ describe('App - full flow', () => {
     expect(
       screen.getByRole('heading', { name: /Quiz Biblique/ }),
     ).toBeInTheDocument()
+  })
+
+  it('picking a book shows its level panel; back returns to the book grid', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /Genèse/ }))
+
+    expect(screen.getByRole('button', { name: /^Facile/ })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /Difficile/ }),
+    ).toHaveAttribute('aria-disabled', 'true')
+
+    await user.click(screen.getByText('← Retour aux livres'))
+
+    expect(screen.getByRole('button', { name: /Genèse/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Exode/ })).toBeInTheDocument()
   })
 })
 
@@ -139,11 +187,11 @@ describe('App - history', () => {
     )
   })
 
-  it('after a finished game, history shows the attempt just played', async () => {
+  it('after a finished game, history shows the attempt just played, with its level', async () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: /Genèse/ }))
+    await selectBook(user, 'Genèse')
     await playThroughQuiz(user)
 
     expect(screen.getByText('Quiz terminé !')).toBeInTheDocument()
@@ -153,6 +201,7 @@ describe('App - history', () => {
 
     expect(await screen.findByText('Genèse')).toBeInTheDocument()
     expect(screen.getByText('2 / 2')).toBeInTheDocument()
+    expect(screen.getByText('Facile')).toBeInTheDocument()
   })
 })
 
@@ -161,7 +210,7 @@ describe('App - theme', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: /Genèse/ }))
+    await selectBook(user, 'Genèse')
     expect(screen.getByText('Question mock un ?')).toBeInTheDocument()
 
     // Reveal the answer: selection + correctness feedback + "next" button.

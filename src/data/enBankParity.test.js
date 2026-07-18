@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { BOOK_NAMES_FR_TO_EN } from './bookNames.js'
+import { DIFFICULTY_FR_TO_LEVEL } from './difficultyLevels.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const frJsonPath = resolve(__dirname, '../../data/quiz_biblique.json')
@@ -42,6 +43,13 @@ describe('English bank parity with the French source', () => {
   it('names each book with the mapped English name of the French book', () => {
     for (const enQ of enRaw.questions) {
       expect(enQ.book).toBe(BOOK_NAMES_FR_TO_EN[frById.get(enQ.id).livre])
+    }
+  })
+
+  it('matches the French difficulty level for every question (facile→easy, moyen→medium, difficile→hard)', () => {
+    for (const enQ of enRaw.questions) {
+      const frQ = frById.get(enQ.id)
+      expect(enQ.difficulty).toBe(DIFFICULTY_FR_TO_LEVEL[frQ.difficulte])
     }
   })
 })

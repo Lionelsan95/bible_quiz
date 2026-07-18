@@ -23,6 +23,15 @@
     "count_one": "{{count}} question",
     "count_other": "{{count}} questions"
   },
+  "level": {
+    "label": "Level",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "choose": "Choose a level for {{book}}",
+    "unavailable": "No questions at this level",
+    "back": "← Back to books"
+  },
   "quiz": {
     "quit": "← Quit",
     "progress": "Question {{current}} / {{total}}",
