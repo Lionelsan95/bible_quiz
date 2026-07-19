@@ -7,7 +7,7 @@ describe('Results', () => {
   it('shows the score and the percentage', () => {
     render(
       <Results
-        book="Genèse"
+        label="Genèse"
         score={7}
         total={10}
         onReplay={() => {}}
@@ -33,7 +33,7 @@ describe('Results', () => {
   ])('shows the right message for %i/%i', (score, total, expectedMessage) => {
     render(
       <Results
-        book="Genèse"
+        label="Genèse"
         score={score}
         total={total}
         onReplay={() => {}}
@@ -47,7 +47,7 @@ describe('Results', () => {
   it('handles a total of 0 without showing NaN', () => {
     render(
       <Results
-        book="Genèse"
+        label="Genèse"
         score={0}
         total={0}
         onReplay={() => {}}
@@ -65,7 +65,7 @@ describe('Results', () => {
     const onReplay = vi.fn()
     render(
       <Results
-        book="Genèse"
+        label="Genèse"
         score={5}
         total={10}
         onReplay={onReplay}
@@ -84,7 +84,7 @@ describe('Results', () => {
     const onChangeBook = vi.fn()
     render(
       <Results
-        book="Genèse"
+        label="Genèse"
         score={5}
         total={10}
         onReplay={() => {}}
@@ -97,5 +97,58 @@ describe('Results', () => {
     )
 
     expect(onChangeBook).toHaveBeenCalledTimes(1)
+  })
+
+  describe('difficulty mode', () => {
+    it('shows the level label and the level-specific action wording', () => {
+      render(
+        <Results
+          label="Difficile"
+          mode="difficulty"
+          score={12}
+          total={20}
+          onReplay={() => {}}
+          onChangeBook={() => {}}
+        />,
+      )
+
+      expect(screen.getByText('Difficile')).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /Rejouer ce niveau/ }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /Retour à l'accueil/ }),
+      ).toBeInTheDocument()
+      // The book-mode wording must not leak into difficulty mode.
+      expect(
+        screen.queryByRole('button', { name: /Rejouer ce livre/ }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('reuses the same handlers as book mode', async () => {
+      const user = userEvent.setup()
+      const onReplay = vi.fn()
+      const onChangeBook = vi.fn()
+      render(
+        <Results
+          label="Facile"
+          mode="difficulty"
+          score={5}
+          total={5}
+          onReplay={onReplay}
+          onChangeBook={onChangeBook}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: /Rejouer ce niveau/ }),
+      )
+      await user.click(
+        screen.getByRole('button', { name: /Retour à l'accueil/ }),
+      )
+
+      expect(onReplay).toHaveBeenCalledTimes(1)
+      expect(onChangeBook).toHaveBeenCalledTimes(1)
+    })
   })
 })

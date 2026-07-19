@@ -31,7 +31,7 @@ describe('Quiz', () => {
   it('shows the Question X / Y progress with a progressbar role', () => {
     render(
       <Quiz
-        book="TestLivre"
+        label="TestLivre"
         questions={questions}
         onFinish={() => {}}
         onQuit={() => {}}
@@ -49,7 +49,7 @@ describe('Quiz', () => {
     const user = userEvent.setup()
     render(
       <Quiz
-        book="TestLivre"
+        label="TestLivre"
         questions={questions}
         onFinish={() => {}}
         onQuit={() => {}}
@@ -67,7 +67,7 @@ describe('Quiz', () => {
     const user = userEvent.setup()
     render(
       <Quiz
-        book="TestLivre"
+        label="TestLivre"
         questions={questions}
         onFinish={() => {}}
         onQuit={() => {}}
@@ -90,7 +90,7 @@ describe('Quiz', () => {
     const onFinish = vi.fn()
     render(
       <Quiz
-        book="TestLivre"
+        label="TestLivre"
         questions={questions}
         onFinish={onFinish}
         onQuit={() => {}}
@@ -116,7 +116,7 @@ describe('Quiz', () => {
     const onQuit = vi.fn()
     render(
       <Quiz
-        book="TestLivre"
+        label="TestLivre"
         questions={questions}
         onFinish={() => {}}
         onQuit={onQuit}
@@ -131,7 +131,7 @@ describe('Quiz', () => {
   it('returns null without crashing if the question list is empty', () => {
     const { container } = render(
       <Quiz
-        book="TestLivre"
+        label="TestLivre"
         questions={[]}
         onFinish={() => {}}
         onQuit={() => {}}

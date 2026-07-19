@@ -53,6 +53,51 @@ describe('HistoryScreen', () => {
     expect(screen.getByText('5 / 10')).toBeInTheDocument()
   })
 
+  it('labels a difficulty attempt with its translated level', async () => {
+    listAttemptsMock.mockResolvedValue([
+      {
+        id: 'a',
+        mode: 'difficulty',
+        difficulty: 'hard',
+        score: 12,
+        total: 20,
+        completedAt: '2026-07-10T10:00:00.000Z',
+      },
+      {
+        id: 'b',
+        mode: 'book',
+        book: 'Exode',
+        score: 5,
+        total: 10,
+        completedAt: '2026-07-09T10:00:00.000Z',
+      },
+    ])
+    render(<HistoryScreen onBack={() => {}} />)
+
+    expect(await screen.findByText('Difficile')).toBeInTheDocument()
+    expect(screen.getByText('12 / 20')).toBeInTheDocument()
+    // Book attempts are unaffected.
+    expect(screen.getByText('Exode')).toBeInTheDocument()
+  })
+
+  // Stored levels are canonical ids; an id with no catalog entry (older or
+  // newer app version) must still render something rather than a blank row.
+  it('falls back to the raw level id when it has no translation', async () => {
+    listAttemptsMock.mockResolvedValue([
+      {
+        id: 'a',
+        mode: 'difficulty',
+        difficulty: 'legendary',
+        score: 1,
+        total: 5,
+        completedAt: '2026-07-10T10:00:00.000Z',
+      },
+    ])
+    render(<HistoryScreen onBack={() => {}} />)
+
+    expect(await screen.findByText('legendary')).toBeInTheDocument()
+  })
+
   it('calls onBack when clicking "← Retour"', async () => {
     listAttemptsMock.mockResolvedValue([])
     const user = userEvent.setup()

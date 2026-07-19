@@ -5,7 +5,12 @@ import App from './App.jsx'
 
 // pickQuestions() uses Math.random (shuffle): the data module is mocked to
 // get a deterministic question set for this integration test.
-const { getBooksMock, pickQuestionsMock } = vi.hoisted(() => {
+const {
+  getBooksMock,
+  getDifficultiesMock,
+  pickQuestionsMock,
+  pickQuestionsByDifficultyMock,
+} = vi.hoisted(() => {
   const mockQuestions = [
     {
       id: 'mock_1',
@@ -30,13 +35,23 @@ const { getBooksMock, pickQuestionsMock } = vi.hoisted(() => {
       { book: 'Genèse', count: 40 },
       { book: 'Exode', count: 35 },
     ]),
+    getDifficultiesMock: vi.fn(() => [
+      { difficulty: 'easy', count: 111 },
+      { difficulty: 'medium', count: 242 },
+      { difficulty: 'hard', count: 151 },
+    ]),
     pickQuestionsMock: vi.fn((book, n) => mockQuestions.slice(0, n)),
+    pickQuestionsByDifficultyMock: vi.fn((difficulty, n) =>
+      mockQuestions.slice(0, n),
+    ),
   }
 })
 
 vi.mock('./data/questions.js', () => ({
   getBooks: getBooksMock,
+  getDifficulties: getDifficultiesMock,
   pickQuestions: pickQuestionsMock,
+  pickQuestionsByDifficulty: pickQuestionsByDifficultyMock,
 }))
 
 async function playThroughQuiz(user) {
@@ -51,9 +66,15 @@ async function playThroughQuiz(user) {
 }
 
 // History relies on jsdom's real localStorage (not mocked in this file): it
-// is cleared before each test to stay isolated.
+// is cleared before each test to stay isolated. The data mocks are module-level
+// and hoisted, so their call records outlive a test — clear those too, or a
+// "was not called" assertion would see an earlier test's calls.
 beforeEach(() => {
   localStorage.clear()
+  getBooksMock.mockClear()
+  getDifficultiesMock.mockClear()
+  pickQuestionsMock.mockClear()
+  pickQuestionsByDifficultyMock.mockClear()
 })
 
 describe('App - full flow', () => {
@@ -123,6 +144,129 @@ describe('App - full flow', () => {
     expect(
       screen.getByRole('heading', { name: /Quiz Biblique/ }),
     ).toBeInTheDocument()
+  })
+})
+
+describe('App - difficulty mode', () => {
+  async function openDifficultySetup(user) {
+    await user.click(
+      screen.getByRole('button', { name: /Jouer par difficulté/ }),
+    )
+  }
+
+  it('home → difficulty setup → quiz draws from the chosen level and count', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await openDifficultySetup(user)
+
+    expect(
+      screen.getByRole('heading', { name: /Quiz par difficulté/ }),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Difficile/ }))
+    await user.click(screen.getByRole('button', { name: '15' }))
+    await user.click(screen.getByRole('button', { name: /Commencer le quiz/ }))
+
+    expect(pickQuestionsByDifficultyMock).toHaveBeenCalledWith('hard', 15, 'fr')
+    // The quiz header shows the translated level, not a book name.
+    expect(screen.getByText('Difficile')).toBeInTheDocument()
+    expect(screen.getByText('Question mock un ?')).toBeInTheDocument()
+  })
+
+  it('defaults to the first level and 10 questions', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await openDifficultySetup(user)
+    await user.click(screen.getByRole('button', { name: /Commencer le quiz/ }))
+
+    expect(pickQuestionsByDifficultyMock).toHaveBeenCalledWith('easy', 10, 'fr')
+  })
+
+  it('replay redraws the same level and count', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await openDifficultySetup(user)
+    await user.click(screen.getByRole('button', { name: /Moyen/ }))
+    await user.click(screen.getByRole('button', { name: '5' }))
+    await user.click(screen.getByRole('button', { name: /Commencer le quiz/ }))
+    await playThroughQuiz(user)
+
+    expect(screen.getByText('Quiz terminé !')).toBeInTheDocument()
+
+    pickQuestionsByDifficultyMock.mockClear()
+    await user.click(screen.getByRole('button', { name: /Rejouer ce niveau/ }))
+
+    expect(pickQuestionsByDifficultyMock).toHaveBeenCalledWith(
+      'medium',
+      5,
+      'fr',
+    )
+    expect(screen.getByText('Question 1 / 2')).toBeInTheDocument()
+  })
+
+  it('results offers "back to home" instead of "choose another book"', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await openDifficultySetup(user)
+    await user.click(screen.getByRole('button', { name: /Commencer le quiz/ }))
+    await playThroughQuiz(user)
+
+    expect(
+      screen.queryByRole('button', { name: /Choisir un autre livre/ }),
+    ).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Retour à l'accueil/ }))
+
+    expect(
+      screen.getByRole('heading', { name: /Quiz Biblique/ }),
+    ).toBeInTheDocument()
+  })
+
+  it('going back from the setup screen returns home without starting a quiz', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await openDifficultySetup(user)
+    await user.click(screen.getByRole('button', { name: /← Retour/ }))
+
+    expect(
+      screen.getByRole('heading', { name: /Quiz Biblique/ }),
+    ).toBeInTheDocument()
+    expect(pickQuestionsByDifficultyMock).not.toHaveBeenCalled()
+  })
+
+  // The language toggle is home-only precisely so a configured quiz can never be
+  // redrawn against a different language's pool.
+  it('does not render the language toggle on the setup screen', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    expect(screen.getByRole('button', { name: 'Français' })).toBeInTheDocument()
+
+    await openDifficultySetup(user)
+
+    expect(
+      screen.queryByRole('button', { name: 'Français' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('a finished difficulty game appears in history under its level name', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await openDifficultySetup(user)
+    await user.click(screen.getByRole('button', { name: /Difficile/ }))
+    await user.click(screen.getByRole('button', { name: /Commencer le quiz/ }))
+    await playThroughQuiz(user)
+
+    await user.click(screen.getByRole('button', { name: /Mon historique/ }))
+
+    expect(await screen.findByText('Difficile')).toBeInTheDocument()
+    expect(screen.getByText('2 / 2')).toBeInTheDocument()
   })
 })
 

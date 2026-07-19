@@ -9,8 +9,11 @@ function getMessage(score, total) {
   return { emoji: '📖', key: 'results.messageKeep' }
 }
 
+// `label` is the played book name or translated difficulty level; `mode` only
+// selects the wording of the two actions (both paths keep the same handlers).
 export default function Results({
-  book,
+  label,
+  mode,
   score,
   total,
   onReplay,
@@ -20,6 +23,7 @@ export default function Results({
   const { t } = useTranslation()
   const { emoji, key } = getMessage(score, total)
   const percent = total > 0 ? Math.round((score / total) * 100) : 0
+  const isDifficulty = mode === 'difficulty'
 
   return (
     <div className="screen results">
@@ -28,7 +32,7 @@ export default function Results({
           {emoji}
         </span>
         <h2>{t('results.title')}</h2>
-        <p className="results-book">{book}</p>
+        <p className="results-book">{label}</p>
         <p className="results-score">
           {score} / {total}
         </p>
@@ -36,10 +40,12 @@ export default function Results({
         <p className="results-message">{t(key)}</p>
         <div className="results-actions">
           <button className="btn-primary" onClick={onReplay}>
-            <span aria-hidden="true">🔄</span> {t('results.replay')}
+            <span aria-hidden="true">🔄</span>{' '}
+            {t(isDifficulty ? 'results.replayDifficulty' : 'results.replay')}
           </button>
           <button className="btn-secondary" onClick={onChangeBook}>
-            <span aria-hidden="true">📚</span> {t('results.changeBook')}
+            <span aria-hidden="true">{isDifficulty ? '🏠' : '📚'}</span>{' '}
+            {t(isDifficulty ? 'results.backHome' : 'results.changeBook')}
           </button>
           {onShowHistory && (
             <button className="btn-link" onClick={onShowHistory}>

@@ -17,11 +17,23 @@
   },
   "home": {
     "title": "Quiz Biblique",
-    "subtitle": "Choisis un livre de la Bible et réponds à 10 questions pour tester tes connaissances !"
+    "subtitle": "Choisis un livre de la Bible et réponds à 10 questions pour tester tes connaissances !",
+    "playByDifficulty": "Jouer par difficulté"
   },
   "book": {
     "count_one": "{{count}} question",
     "count_other": "{{count}} questions"
+  },
+  "difficulty": {
+    "title": "Quiz par difficulté",
+    "subtitle": "Choisis un niveau et un nombre de questions. Elles seront tirées au hasard dans tous les livres.",
+    "chooseLevel": "Niveau de difficulté",
+    "easy": "Facile",
+    "medium": "Moyen",
+    "hard": "Difficile",
+    "chooseCount": "Nombre de questions",
+    "start": "Commencer le quiz",
+    "back": "← Retour"
   },
   "quiz": {
     "quit": "← Quitter",
@@ -42,6 +54,8 @@
     "percent": "{{percent}}% de bonnes réponses",
     "replay": "Rejouer ce livre",
     "changeBook": "Choisir un autre livre",
+    "replayDifficulty": "Rejouer ce niveau",
+    "backHome": "Retour à l'accueil",
     "messageExcellent": "Excellent ! Tu connais très bien ce livre !",
     "messageGood": "Très bien ! Encore un petit effort pour la perfection.",
     "messageOk": "Pas mal, continue comme ça !",

@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import QuestionCard from './QuestionCard.jsx'
 
-export default function Quiz({ book, questions, onFinish, onQuit }) {
+// `label` is what the game is called in the header — a book name in book mode,
+// a translated difficulty level in difficulty mode. Display only.
+export default function Quiz({ label, questions, onFinish, onQuit }) {
   const { t } = useTranslation()
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
@@ -36,7 +38,7 @@ export default function Quiz({ book, questions, onFinish, onQuit }) {
           {t('quiz.quit')}
         </button>
         <div className="quiz-progress">
-          <span className="quiz-book">{book}</span>
+          <span className="quiz-book">{label}</span>
           <span className="quiz-count">
             {t('quiz.progress', { current: index + 1, total })}
           </span>

@@ -223,6 +223,106 @@ button:focus-visible {
   color: var(--muted);
 }
 
+/* Home entry points (difficulty mode + history), under the subtitle. */
+.home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* .btn-link carries a margin-top from when the history link stood alone; inside
+   this centred row it would push the link below its neighbour's baseline. */
+.home-actions .btn-link {
+  margin-top: 0;
+}
+
+/* ---------- Difficulty setup ---------- */
+
+.setup-group {
+  border: none;
+  margin-bottom: 1.5rem;
+}
+
+.setup-legend {
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+}
+
+.setup-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+/* Selected state keys off [aria-pressed='true'] rather than :disabled — these
+   are toggle buttons that must stay focusable (see the option-button contract
+   in CLAUDE.md). The .active class mirrors it for styling parity with
+   .lang-btn.active; aria-pressed remains the source of truth for a11y. */
+.setup-option {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  color: var(--ink);
+  font-size: 1rem;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.setup-option:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+}
+
+/* A level with no questions: dimmed and inert, but still focusable. */
+.setup-option[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.setup-option[aria-disabled='true']:hover {
+  transform: none;
+  border-color: var(--border);
+}
+
+.setup-option[aria-pressed='true'] {
+  background: var(--accent-bg);
+  border-color: var(--accent-bg);
+  color: #fff;
+}
+
+.setup-option-label {
+  font-weight: bold;
+}
+
+.setup-option-count {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* The count line has to invert too once the tile is solid-filled. */
+.setup-option[aria-pressed='true'] .setup-option-count {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.count-option {
+  min-width: 3.5rem;
+  font-weight: bold;
+}
+
+.btn-start {
+  width: 100%;
+}
+
 /* ---------- Quiz ---------- */
 
 .quiz-header {
