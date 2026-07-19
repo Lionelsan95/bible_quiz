@@ -27,14 +27,25 @@ function newId() {
 // localStorage is user-editable and shared across app versions, so individual
 // records may be malformed even when the container parses. Validate each one so
 // consumers can trust the shape (see the versioned-key rationale above).
+// A record identifies its quiz either by book or by difficulty. `mode` is
+// additive within v2: records written before difficulty mode existed have no
+// `mode` field at all, so a bare `book` must stay sufficient on its own.
+//
+// Compatibility note: an OLD app version reading these records requires `book`,
+// so it filters difficulty attempts out — a graceful display degradation. The
+// accepted risk is that if such a version then SAVES an attempt, it rewrites the
+// store from its filtered read and those difficulty records are lost. Deemed
+// acceptable for a per-browser history capped at 100, rather than paying for a
+// v3 key and a second migration chain.
 function isValidAttempt(a) {
   return (
     a !== null &&
     typeof a === 'object' &&
     typeof a.id === 'string' &&
-    typeof a.book === 'string' &&
     typeof a.score === 'number' &&
-    typeof a.total === 'number'
+    typeof a.total === 'number' &&
+    (typeof a.book === 'string' ||
+      (a.mode === 'difficulty' && typeof a.difficulty === 'string'))
   )
 }
 
@@ -98,11 +109,18 @@ function readAll() {
 
 // Appends an attempt and returns the stored record (newest-first ordering is
 // maintained here so consumers don't have to sort). Missing id/completedAt are
-// filled in so callers can pass just { book, score, total }.
+// filled in so callers can pass just { book, score, total } — or, for a
+// difficulty quiz, { mode: 'difficulty', difficulty, score, total }.
 export function saveAttempt(attempt) {
+  const mode = attempt.mode ?? 'book'
   const record = {
     id: attempt.id ?? newId(),
-    book: attempt.book,
+    mode,
+    // Only the field that identifies this mode is stored, so a difficulty
+    // record never carries a `book: undefined` key.
+    ...(mode === 'difficulty'
+      ? { difficulty: attempt.difficulty }
+      : { book: attempt.book }),
     score: attempt.score,
     total: attempt.total,
     completedAt: attempt.completedAt ?? new Date().toISOString(),

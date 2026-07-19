@@ -56,6 +56,93 @@ describe('saveAttempt + listAttempts', () => {
   })
 })
 
+describe('difficulty-mode attempts', () => {
+  it('saves and retrieves a difficulty attempt (no book)', () => {
+    saveAttempt({
+      mode: 'difficulty',
+      difficulty: 'hard',
+      score: 12,
+      total: 20,
+    })
+
+    const attempts = listAttempts()
+
+    expect(attempts.length).toBe(1)
+    expect(attempts[0]).toMatchObject({
+      mode: 'difficulty',
+      difficulty: 'hard',
+      score: 12,
+      total: 20,
+    })
+  })
+
+  it('does not store a book key on a difficulty attempt', () => {
+    const record = saveAttempt({
+      mode: 'difficulty',
+      difficulty: 'easy',
+      score: 3,
+      total: 5,
+    })
+
+    expect('book' in record).toBe(false)
+  })
+
+  it("defaults mode to 'book' when the caller omits it", () => {
+    const record = saveAttempt({ book: 'Genèse', score: 8, total: 10 })
+
+    expect(record.mode).toBe('book')
+    expect(record.book).toBe('Genèse')
+    expect('difficulty' in record).toBe(false)
+  })
+
+  it('keeps both modes in one newest-first list', () => {
+    saveAttempt({ book: 'Genèse', score: 8, total: 10 })
+    saveAttempt({
+      mode: 'difficulty',
+      difficulty: 'medium',
+      score: 9,
+      total: 15,
+    })
+
+    const attempts = listAttempts()
+
+    expect(attempts.map((a) => a.mode)).toEqual(['difficulty', 'book'])
+  })
+
+  // Records written before difficulty mode existed have no `mode` field. They
+  // must keep validating on `book` alone, or upgrading would blank the history.
+  it('still accepts legacy records that predate the mode field', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([
+        {
+          id: 'legacy',
+          book: 'Exode',
+          score: 5,
+          total: 10,
+          completedAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]),
+    )
+
+    expect(listAttempts().map((a) => a.id)).toEqual(['legacy'])
+  })
+
+  it('filters out records identified by neither book nor difficulty', () => {
+    const stored = [
+      { id: 'a', book: 'Genèse', score: 5, total: 10 },
+      // mode says difficulty but the level is missing
+      { id: 'b', mode: 'difficulty', score: 5, total: 10 },
+      // a difficulty value without the mode flag is not a valid identifier
+      { id: 'c', difficulty: 'hard', score: 5, total: 10 },
+      { id: 'd', mode: 'difficulty', difficulty: 'easy', score: 5, total: 10 },
+    ]
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
+
+    expect(listAttempts().map((a) => a.id)).toEqual(['a', 'd'])
+  })
+})
+
 describe('listAttempts - tolerance to corrupt data', () => {
   it('returns an empty array if the stored JSON is corrupt', () => {
     localStorage.setItem(STORAGE_KEY, 'not valid json {{{')
