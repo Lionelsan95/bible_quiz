@@ -1,5 +1,6 @@
 import frRaw from '../../data/quiz_biblique.json'
 import enRaw from '../../data/quiz_biblique.en.json'
+import { DIFFICULTIES, DIFFICULTY_FR_TO_CANONICAL } from './difficulties.js'
 
 export const DEFAULT_LANG = 'fr'
 
@@ -18,7 +19,9 @@ function normalizeFr(q) {
     correctAnswers: [...q.reponses_correctes],
     correctCount: q.nombre_bonnes_reponses,
     reference: q.reference,
-    difficulty: q.difficulte,
+    // facile/moyen/difficile -> easy/medium/hard, so both banks expose the same
+    // canonical ids (see difficulties.js).
+    difficulty: DIFFICULTY_FR_TO_CANONICAL[q.difficulte],
   }
 }
 
@@ -66,6 +69,11 @@ if (import.meta.env.DEV) {
       if (q.correctAnswers.some((i) => i < 0 || i >= q.options.length)) {
         console.warn(`[${lang}] Correct-answer index out of range for ${q.id}`)
       }
+      if (!DIFFICULTIES.includes(q.difficulty)) {
+        console.warn(
+          `[${lang}] Unknown difficulty for ${q.id}: ${q.difficulty}`,
+        )
+      }
     }
   }
 }
@@ -90,11 +98,28 @@ function shuffle(array) {
   return copy
 }
 
-// Draws up to `n` random questions from a book (in the given language), also
-// shuffling each question's options and remapping the correct-answer indices to
-// the new order (sorted ascending).
-export function pickQuestions(book, n = 10, lang = DEFAULT_LANG) {
-  const pool = bank(lang).filter((q) => q.book === book)
+// Difficulty levels in canonical (ascending) order, with their question counts,
+// for the given language. Unlike `getBooks`, the order here is semantic rather
+// than file order, so it comes from DIFFICULTIES — levels absent from the bank
+// report a count of 0 rather than disappearing.
+export function getDifficulties(lang = DEFAULT_LANG) {
+  const counts = new Map(DIFFICULTIES.map((difficulty) => [difficulty, 0]))
+  for (const q of bank(lang)) {
+    if (counts.has(q.difficulty)) {
+      counts.set(q.difficulty, counts.get(q.difficulty) + 1)
+    }
+  }
+  return DIFFICULTIES.map((difficulty) => ({
+    difficulty,
+    count: counts.get(difficulty),
+  }))
+}
+
+// Draws up to `n` random questions from an already-filtered pool, also shuffling
+// each question's options and remapping the correct-answer indices to the new
+// order (sorted ascending). Shared by both selectors below — the option-shuffle
+// remap is subtle enough that it must never be duplicated.
+function draw(pool, n) {
   const selected = shuffle(pool).slice(0, Math.min(n, pool.length))
 
   return selected.map((q) => {
@@ -107,4 +132,25 @@ export function pickQuestions(book, n = 10, lang = DEFAULT_LANG) {
         .sort((a, b) => a - b),
     }
   })
+}
+
+// Draws up to `n` random questions from a book (in the given language).
+export function pickQuestions(book, n = 10, lang = DEFAULT_LANG) {
+  return draw(
+    bank(lang).filter((q) => q.book === book),
+    n,
+  )
+}
+
+// Draws up to `n` random questions of a canonical difficulty (see
+// difficulties.js), pooled across every book in the given language.
+export function pickQuestionsByDifficulty(
+  difficulty,
+  n = 10,
+  lang = DEFAULT_LANG,
+) {
+  return draw(
+    bank(lang).filter((q) => q.difficulty === difficulty),
+    n,
+  )
 }

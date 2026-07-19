@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { BOOK_NAMES_FR_TO_EN } from './bookNames.js'
+import { DIFFICULTY_FR_TO_CANONICAL } from './difficulties.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const frJsonPath = resolve(__dirname, '../../data/quiz_biblique.json')
@@ -42,6 +43,17 @@ describe('English bank parity with the French source', () => {
   it('names each book with the mapped English name of the French book', () => {
     for (const enQ of enRaw.questions) {
       expect(enQ.book).toBe(BOOK_NAMES_FR_TO_EN[frById.get(enQ.id).livre])
+    }
+  })
+
+  // Difficulty mode pools questions across all books by canonical difficulty, so
+  // a level must contain the same questions in both languages — a single
+  // mistranslated level would silently change what an English player is served.
+  it('matches the mapped French difficulty for every question', () => {
+    for (const enQ of enRaw.questions) {
+      expect(enQ.difficulty).toBe(
+        DIFFICULTY_FR_TO_CANONICAL[frById.get(enQ.id).difficulte],
+      )
     }
   })
 })

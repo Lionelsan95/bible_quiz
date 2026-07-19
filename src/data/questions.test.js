@@ -2,7 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
-import { getBooks, pickQuestions } from './questions.js'
+import {
+  getBooks,
+  getDifficulties,
+  pickQuestions,
+  pickQuestionsByDifficulty,
+} from './questions.js'
+import { QUESTION_COUNTS } from './difficulties.js'
 import quizData from '../../data/quiz_biblique.json'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -154,6 +160,124 @@ describe('pickQuestions', () => {
     for (const q of result) {
       expect(q.book).toBe('Genèse')
     }
+  })
+})
+
+// Known reference counts, verified against both source banks (they sum to 504,
+// the full bank), following the `Genèse: 40` precedent above — safe to hardcode
+// because both banks are off-limits for edits.
+const EXPECTED_DIFFICULTY_COUNTS = [
+  { difficulty: 'easy', count: 111 },
+  { difficulty: 'medium', count: 242 },
+  { difficulty: 'hard', count: 151 },
+]
+
+describe('getDifficulties', () => {
+  it('returns the three levels in ascending order with their counts', () => {
+    expect(getDifficulties()).toEqual(EXPECTED_DIFFICULTY_COUNTS)
+  })
+
+  it('reports identical counts for the English bank (fr/en parity)', () => {
+    expect(getDifficulties('en')).toEqual(EXPECTED_DIFFICULTY_COUNTS)
+  })
+
+  it('defaults to French when no language is given', () => {
+    expect(getDifficulties()).toEqual(getDifficulties('fr'))
+  })
+
+  it('falls back to French for an unknown/unsupported language', () => {
+    expect(getDifficulties('de')).toEqual(getDifficulties('fr'))
+  })
+
+  // If this ever fails, the picker is offering a count some level cannot fill
+  // and that level needs a "only N available" state — so keep it pinned to the
+  // real QUESTION_COUNTS rather than a literal.
+  it('leaves every level able to satisfy the largest offered draw', () => {
+    const largest = Math.max(...QUESTION_COUNTS)
+    for (const lang of ['fr', 'en']) {
+      for (const { count } of getDifficulties(lang)) {
+        expect(count).toBeGreaterThanOrEqual(largest)
+      }
+    }
+  })
+})
+
+describe('pickQuestionsByDifficulty', () => {
+  it('returns at most n questions', () => {
+    expect(pickQuestionsByDifficulty('easy', 20).length).toBe(20)
+  })
+
+  it('only returns questions of the requested difficulty', () => {
+    const result = pickQuestionsByDifficulty('hard', 20)
+    expect(result.length).toBe(20)
+    for (const q of result) {
+      expect(q.difficulty).toBe('hard')
+    }
+  })
+
+  it('pools questions across multiple books', () => {
+    // The draw is random, but 20 questions from a 151-question pool spanning
+    // many books effectively never lands entirely inside one book.
+    const books = new Set(
+      pickQuestionsByDifficulty('hard', 20).map((q) => q.book),
+    )
+    expect(books.size).toBeGreaterThan(1)
+  })
+
+  it('never returns more questions than the level has', () => {
+    expect(pickQuestionsByDifficulty('easy', 1000).length).toBe(111)
+  })
+
+  it('returns an empty array for an unknown difficulty', () => {
+    expect(pickQuestionsByDifficulty('impossible', 10)).toEqual([])
+  })
+
+  it('rejects raw French difficulty values (they are canonicalized)', () => {
+    expect(pickQuestionsByDifficulty('facile', 10)).toEqual([])
+  })
+
+  it('handles n=0 by returning an empty array', () => {
+    expect(pickQuestionsByDifficulty('easy', 0)).toEqual([])
+  })
+
+  it('shuffles options while preserving the correct-answer text', () => {
+    const raw = JSON.parse(readFileSync(rawJsonPath, 'utf-8'))
+    const originalById = new Map(raw.questions.map((q) => [q.id, q]))
+
+    for (const q of pickQuestionsByDifficulty('medium', 20)) {
+      const original = originalById.get(q.id)
+      expect([...q.options].sort()).toEqual([...original.options].sort())
+      expect(q.correctAnswers).toEqual(
+        [...q.correctAnswers].sort((a, b) => a - b),
+      )
+      expect(q.correctAnswers.map((i) => q.options[i]).sort()).toEqual(
+        original.reponses_correctes.map((i) => original.options[i]).sort(),
+      )
+    }
+  })
+
+  it('returns English questions for lang="en"', () => {
+    const result = pickQuestionsByDifficulty('easy', 10, 'en')
+    expect(result.length).toBe(10)
+    for (const q of result) {
+      expect(q.difficulty).toBe('easy')
+      expect(q.text.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('falls back to French for an unknown/unsupported language', () => {
+    const result = pickQuestionsByDifficulty('easy', 1000, 'de')
+    expect(result.length).toBe(111)
+  })
+
+  it('does not mutate the source data', () => {
+    const before = JSON.parse(JSON.stringify(quizData.questions))
+
+    pickQuestionsByDifficulty('easy', 5)
+    pickQuestionsByDifficulty('medium', 1000)
+    pickQuestionsByDifficulty('impossible', 10)
+
+    expect(quizData.questions).toEqual(before)
   })
 })
 
